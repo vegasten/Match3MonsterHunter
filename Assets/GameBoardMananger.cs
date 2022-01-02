@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class GameBoardMananger : MonoBehaviour
 {
     // Tiles is currently 6x6
-    [SerializeField] private int numberOfColums = 6;
+    [SerializeField] private int numberOfColumns = 6;
     [SerializeField] private int numberOfRows = 6;
 
     [SerializeField] private List<Transform> columns;
@@ -25,7 +25,7 @@ public class GameBoardMananger : MonoBehaviour
     private void Awake()
     {
         shuffleButton.onClick.AddListener(Shuffle);
-        TilesMatrix = new TileHolder[numberOfColums, numberOfRows];
+        TilesMatrix = new TileHolder[numberOfColumns, numberOfRows];
     }
     private void Start()
     {
@@ -46,7 +46,7 @@ public class GameBoardMananger : MonoBehaviour
 
     private void SpawnRandomTiles()
     {
-        for (int i = 0; i < numberOfColums; i++)
+        for (int i = 0; i < numberOfColumns; i++)
         {
             for (int j = 0; j < numberOfRows; j++)
             {
@@ -77,7 +77,7 @@ public class GameBoardMananger : MonoBehaviour
 
     private void UpdateVisuals()
     {
-        for (int i = 0; i < numberOfColums; i++)
+        for (int i = 0; i < numberOfColumns; i++)
         {
             for (int j = 0; j < numberOfRows; j++)
             {
@@ -111,89 +111,65 @@ public class GameBoardMananger : MonoBehaviour
         }
     }
 
-    // TODO: Should it support more than 5 in a row???
     // TODO: check for T and L shapes
     private void CheckForMatches()
     {
         FindHorizontalMatches();
         FindVerticalMatches();
-        
     }
 
     private void FindHorizontalMatches()
     {
+        int minNumForMatch = 3;
+        int count = 1;
+
         for (int j = 0; j < numberOfRows; j++)
         {
-            for (int i = 0; i < numberOfColums - 2; i++)
+            for (int i = 0; i < numberOfColumns;)
             {
-                if (TilesMatrix[i, j].Type == TilesMatrix[i + 1, j].Type)
+                for (int k = 0; k < numberOfColumns - i - 1; k++)
                 {
-                    if (TilesMatrix[i + 1, j].Type == TilesMatrix[i + 2, j].Type)
+                    if (TilesMatrix[i + k, j].Type == TilesMatrix[i + k + 1, j].Type)
                     {
-                        Debug.Log($"Got a horizontal match: [{i},{j}] - {TilesMatrix[i, j].Type}");
-
-                        if (i + 3 < numberOfColums)
-                        {
-                            if (TilesMatrix[i + 2, j].Type == TilesMatrix[i + 3, j].Type)
-                            {
-                                Debug.Log("It is actually 4 in a row");
-
-                                if (i + 4 < numberOfColums)
-                                {
-                                    if (TilesMatrix[i + 3, j].Type == TilesMatrix[i + 4, j].Type)
-                                    {
-                                        Debug.Log("No wait, 5 in a row!");
-
-                                    }
-                                    i++;
-                                }
-                                i++;
-                            }
-                        }
-                        i++; // No need to check the tiles that are in this current match
-                        i++;
+                        count++;
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
+                if (count >= minNumForMatch)
+                    Debug.Log($"Got a horizontal match: [{i},{j}] - {count} number of tiles  - {TilesMatrix[i, j].Type}");
+                i += count;
+                count = 1;
             }
         }
     }
 
     private void FindVerticalMatches()
     {
-        for (int i = 0; i < numberOfColums; i++)
+        int minNumForMatch = 3;
+        int count = 1;
+
+        for (int i = 0; i < numberOfColumns; i++)
         {
-            for (int j = 0; j < numberOfRows - 2; j++)
+            for (int j = 0; j < numberOfRows;)
             {
-                if (TilesMatrix[i, j].Type == TilesMatrix[i, j + 1].Type)
+                for (int k = 0; k < numberOfRows - j - 1; k++)
                 {
-                    if (TilesMatrix[i, j + 1].Type == TilesMatrix[i, j + 2].Type)
+                    if (TilesMatrix[i, j + k].Type == TilesMatrix[i, j + k + 1].Type)
                     {
-                        Debug.Log($"Got a vertical match: [{i},{j}] - {TilesMatrix[i, j].Type}");
-
-
-
-                        if (i + 3 < numberOfRows)
-                        {
-                            if (TilesMatrix[i, j + 2].Type == TilesMatrix[i, j + 3].Type)
-                            {
-                                Debug.Log("It is actually 4 in a row");
-
-                                if (i + 4 < numberOfRows)
-                                {
-                                    if (TilesMatrix[i, j + 3].Type == TilesMatrix[i, j + 4].Type)
-                                    {
-                                        Debug.Log("No wait, 5 in a row!");
-
-                                    }
-                                    j++;
-                                }
-                                j++;
-                            }
-                        }
-                        j++; // No need to check the tiles that are in this current match
-                        j++;
+                        count++;
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
+                if (count >= minNumForMatch)
+                    Debug.Log($"Got a vertical match: [{i},{j}] - {count} number of tiles  - {TilesMatrix[i, j].Type}");
+                j += count;
+                count = 1;
             }
         }
     }
