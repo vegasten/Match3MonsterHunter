@@ -20,7 +20,7 @@ public class GameBoardMananger : MonoBehaviour
     [Header("Debug")]
     [SerializeField] private Button _shuffleButton;
 
-    private TileHolder[,] TilesMatrix;
+    private Tile[,] TilesMatrix;
 
     private List<List<Vector2Int>> _horizontalMatches;
     private List<List<Vector2Int>> _verticalMatches;
@@ -30,7 +30,7 @@ public class GameBoardMananger : MonoBehaviour
     private void Awake()
     {
         _shuffleButton.onClick.AddListener(Shuffle);
-        TilesMatrix = new TileHolder[_numberOfColumns, _numberOfRows];
+        TilesMatrix = new Tile[_numberOfColumns, _numberOfRows];
 
         _horizontalMatches = new List<List<Vector2Int>>();
         _verticalMatches = new List<List<Vector2Int>>();
@@ -40,7 +40,6 @@ public class GameBoardMananger : MonoBehaviour
     {
         ClearAllVisualTiles();
         SpawnRandomTiles();
-        UpdateVisuals();
     }
 
     private void Shuffle()
@@ -51,8 +50,6 @@ public class GameBoardMananger : MonoBehaviour
         ClearAllVisualTiles();
         SpawnRandomTiles();
 
-        UpdateVisuals();
-
         CheckForMatches();
     }
 
@@ -62,57 +59,31 @@ public class GameBoardMananger : MonoBehaviour
         {
             for (int j = 0; j < _numberOfRows; j++)
             {
-                int tileTypeIndex = Random.Range(0, 3); // TODO Connect this and enum in some way
-
-                var tileHolder = new TileHolder();
-
+                int tileTypeIndex = Random.Range(0, 3); // TODO Connect this and enum in some way                
+                Tile tile;
                 switch (tileTypeIndex)
                 {
                     case 0:
-                        tileHolder.Type = TileType.RedCircle;
+                        tile = Instantiate(tile1, _columns[i]).GetComponent<Tile>();
+                        tile.SetType(TileType.RedCircle);
                         break;
                     case 1:
-                        tileHolder.Type = TileType.GreenCircle;
+                        tile = Instantiate(tile2, _columns[i]).GetComponent<Tile>();
+                        tile.SetType(TileType.GreenCircle);
                         break;
                     case 2:
-                        tileHolder.Type = TileType.BlueCircle;
+                        tile = Instantiate(tile3, _columns[i]).GetComponent<Tile>();
+                        tile.SetType(TileType.BlueCircle);
                         break;
                     default:
                         Debug.LogError("Random index out of range");
-                        break;
-                }
-
-                TilesMatrix[i, j] = tileHolder;
-            }
-        }
-    }
-
-    private void UpdateVisuals()
-    {
-        for (int i = 0; i < _numberOfColumns; i++)
-        {
-            for (int j = 0; j < _numberOfRows; j++)
-            {
-
-                Tile tile;
-                switch (TilesMatrix[i, j].Type)
-                {
-                    case TileType.RedCircle:
-                        tile = Instantiate(tile1, _columns[i]).GetComponent<Tile>();
-                        break;
-                    case TileType.GreenCircle:
-                        tile = Instantiate(tile2, _columns[i]).GetComponent<Tile>();
-                        break;
-                    case TileType.BlueCircle:
-                        tile = Instantiate(tile3, _columns[i]).GetComponent<Tile>();
-                        break;
-                    default:
-                        Debug.LogError("Something happened with the TileType enum check in UpdateVisuals");
                         tile = new Tile(); // Todo Hack
                         break;
                 }
+
                 tile.SetTileIndex(new Vector2Int(i, j));
                 tile.OnTileClicked += OnTileClicked;
+                TilesMatrix[i, j] = tile;
             }
         }
     }

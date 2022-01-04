@@ -8,6 +8,7 @@ public class Tile : MonoBehaviour, IPointerClickHandler
     public event Action<Tile> OnTileClicked;
 
     public Vector2Int TileIndex { get; private set; }
+    public TileType Type { get; private set; }
 
     private Image _image;
 
@@ -17,6 +18,11 @@ public class Tile : MonoBehaviour, IPointerClickHandler
     public void SetTileIndex(Vector2Int index)
     {
         TileIndex = index;
+    }
+
+    public void SetType(TileType type)
+    {
+        Type = type;
     }
 
     private void Awake()
