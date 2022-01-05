@@ -108,7 +108,12 @@ public class GameBoardMananger : MonoBehaviour
             {
                 if (CanSwitch(_selectedTile, tile))
                 {
-                    SwitchTiles(_selectedTile, tile);
+                    SwitchTiles(_selectedTile, tile);                   
+
+                    if (FindHorizontalMatches().Count == 0 && FindVerticalMatches().Count  == 0)
+                    {
+                        SwitchTiles(_selectedTile, tile);
+                    }
 
                     _selectedTile.SetAsSelected(false);
                     _selectedTile = null;
@@ -121,15 +126,23 @@ public class GameBoardMananger : MonoBehaviour
                 }
             }
         }
-
-        Debug.Log($"Clicked tile: {tileIndex.ToString()}");
     }
 
     private bool CanSwitch(Tile tile1, Tile tile2)
     {
         var index1 = tile1.TileIndex;
         var index2 = tile2.TileIndex;
+        
+        if (IsAdjacent(index1, index2))
+        {
+            return true;
+        }
 
+        return false;
+    }
+
+    private bool IsAdjacent(Vector2Int index1, Vector2Int index2)
+    {
         if (index1.x == index2.x && Mathf.Abs(index1.y - index2.y) <= 1)
             return true;
         else if (index1.y == index2.y && Mathf.Abs(index1.x - index2.x) <= 1)
@@ -143,15 +156,18 @@ public class GameBoardMananger : MonoBehaviour
         var index1 = tile1.TileIndex;
         var index2 = tile2.TileIndex;
 
-        if (index1.x == index2.x)
+        if (index1.x == index2.x) // Vertical switch
         {
             tile1.transform.SetSiblingIndex(index2.y);
             tile2.transform.SetSiblingIndex(index1.y);
 
             tile1.SetTileIndex(new Vector2Int(index1.x, index2.y));
             tile2.SetTileIndex(new Vector2Int(index2.x, index1.y));
+
+            TilesMatrix[index1.x, index1.y] = tile2;
+            TilesMatrix[index2.x, index2.y] = tile1;
         }
-        else
+        else // Horizontal switch
         {
             var col1 = tile1.transform.parent;
             var col2 = tile2.transform.parent;
@@ -163,6 +179,9 @@ public class GameBoardMananger : MonoBehaviour
 
             tile1.SetTileIndex(new Vector2Int(index2.x, index1.y));
             tile2.SetTileIndex(new Vector2Int(index1.x, index2.y));
+
+            TilesMatrix[index1.x, index1.y] = tile2;
+            TilesMatrix[index2.x, index2.y] = tile1;
         }
     }
 
@@ -182,10 +201,12 @@ public class GameBoardMananger : MonoBehaviour
     {
         FindHorizontalMatches();
         FindVerticalMatches();
-    }
+    } 
 
-    private void FindHorizontalMatches()
+    private List<List<Vector2Int>> FindHorizontalMatches()
     {
+        var matches = new List<List<Vector2Int>>();
+
         int minNumForMatch = 3;
         int count = 1;
 
@@ -212,17 +233,21 @@ public class GameBoardMananger : MonoBehaviour
                         currentMatchingTiles.Add(new Vector2Int(i + n, j));
                     }
 
-                    _horizontalMatches.Add(currentMatchingTiles);
+                    matches.Add(currentMatchingTiles);
                     Debug.Log($"Got a horizontal match: [{i},{j}] - {count} number of tiles  - {TilesMatrix[i, j].Type}");
                 }
                 i += count;
                 count = 1;
             }
         }
+
+        return matches;
     }
 
-    private void FindVerticalMatches()
+    private List<List<Vector2Int>> FindVerticalMatches()
     {
+        var matches = new List<List<Vector2Int>>();
+
         int minNumForMatch = 3;
         int count = 1;
 
@@ -248,12 +273,13 @@ public class GameBoardMananger : MonoBehaviour
                     {
                         currentMathingTiles.Add(new Vector2Int(i, j + n));
                     }
-
+                    matches.Add(currentMathingTiles);
                     Debug.Log($"Got a vertical match: [{i},{j}] - {count} number of tiles  - {TilesMatrix[i, j].Type}");
                 }
                 j += count;
                 count = 1;
             }
         }
+        return matches;
     }
 }
