@@ -266,7 +266,7 @@ public class GameBoardMananger : MonoBehaviour
     private void CheckForMatches()
     {
         // Order here determines priority
-        FindFiveInARow();
+        //FindFiveInARow();
         FindPlusShapes();
         FindTShapes();
         FindLShapes();
@@ -312,11 +312,6 @@ public class GameBoardMananger : MonoBehaviour
                             _tilesMatrix[i + l, j].IsUsed = true;
                         }
 
-                        foreach(var cor in match.Coordinates)
-                        {
-                            Debug.Log(cor.ToString());
-                        }
-
                         _matches.Add(match);
                     }
                 }
@@ -354,11 +349,6 @@ public class GameBoardMananger : MonoBehaviour
                             _tilesMatrix[i, j + l].IsUsed = true;
                         }
 
-                        foreach (var cor in match.Coordinates)
-                        {
-                            Debug.Log(cor.ToString());
-                        }
-
                         _matches.Add(match);
                     }
                 }
@@ -368,7 +358,34 @@ public class GameBoardMananger : MonoBehaviour
 
     private void FindPlusShapes()
     {
+        for (int i = 1; i < _numberOfColumns - 1; i++)
+        {
+            for (int j = 1; j < _numberOfRows - 1; j++)
+            {
+                var tileCenter = _tilesMatrix[i, j];
+                var tileLeft = _tilesMatrix[i - 1, j];
+                var tileRight = _tilesMatrix[i + 1, j];
+                var tileUp = _tilesMatrix[i, j - 1];
+                var tileDown = _tilesMatrix[i, j + 1];
 
+                var tiles = new List<Tile>() { tileCenter, tileLeft, tileRight, tileUp, tileDown };
+
+                if (tiles.All(t => !t.IsUsed && t.Type == tileCenter.Type))
+                {
+                    Debug.Log("Found a plus shape!");
+                    var match = new Match();
+                    match.MatchType = MatchType.PlusShape;
+                    match.TileType = tileCenter.Type;
+                    match.Coordinates = new List<Vector2Int>();
+                    foreach(var tile in tiles)
+                    {
+                        tile.IsUsed = true;
+                        match.Coordinates.Add(tile.TileIndex);
+                        Debug.Log(tile.TileIndex.ToString());
+                    }
+                }
+            }
+        }
     }
 
     private void FindTShapes()
