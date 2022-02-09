@@ -8,7 +8,7 @@ public class GameBoardMananger : MonoBehaviour
     [SerializeField] private int _numberOfColumns = 6;
     [SerializeField] private int _numberOfRows = 6;
 
-    [SerializeField] private List<Transform> _columns;
+    [SerializeField] private List<Transform> _slotColumns;
 
     // Different tiles
     // TODO Should be moved somewhere else
@@ -20,7 +20,8 @@ public class GameBoardMananger : MonoBehaviour
     [Header("Debug")]
     [SerializeField] private Button _shuffleButton;
 
-    private Tile[,] TilesMatrix;
+    private TileSlot[,] _tileSlotsMatrix;
+    private Tile[,] _tilesMatrix;
 
     private List<List<Vector2Int>> _horizontalMatches;
     private List<List<Vector2Int>> _verticalMatches;
@@ -29,17 +30,74 @@ public class GameBoardMananger : MonoBehaviour
 
     private void Awake()
     {
-        _shuffleButton.onClick.AddListener(Shuffle);
-        TilesMatrix = new Tile[_numberOfColumns, _numberOfRows];
+
+        //_shuffleButton.onClick.AddListener(Shuffle);
+        _shuffleButton.onClick.AddListener(ClearMatches);
+
+        _tileSlotsMatrix = new TileSlot[_numberOfColumns, _numberOfRows];
+        _tilesMatrix = new Tile[_numberOfColumns, _numberOfRows];
 
         _horizontalMatches = new List<List<Vector2Int>>();
         _verticalMatches = new List<List<Vector2Int>>();
+
+
+        InitializeSlotMatrix();
     }
+
+    private void InitializeSlotMatrix()
+    {
+        for (int i = 0; i < _numberOfColumns; i++)
+        {
+            for (int j = 0; j <_numberOfRows; j++)
+            {
+                var tileSlot = _slotColumns[i].GetChild(j).GetComponent<TileSlot>();
+                _tileSlotsMatrix[i, j] = tileSlot;
+            }
+        }
+    }
+
 
     private void Start()
     {
-        ClearAllVisualTiles();
+        ClearAllTiles();
         SpawnRandomTiles();
+    }
+
+    private void ClearMatches()
+    {
+        _horizontalMatches.Clear();
+        _verticalMatches.Clear();
+
+        _horizontalMatches = FindHorizontalMatches();
+        _verticalMatches = FindVerticalMatches();
+
+        foreach (var match in _horizontalMatches)
+        {
+            foreach (var tileIndex in match)
+            {
+                ClearTile(tileIndex.x, tileIndex.y);
+            }
+        }
+
+        foreach (var match in _verticalMatches)
+        {
+            foreach (var tileIndex in match)
+            {
+                ClearTile(tileIndex.x, tileIndex.y);
+            }
+        }
+        
+    }
+
+    private void ClearTile(int row, int col)
+    {
+        _tilesMatrix[row, col] = null;
+
+        var tileSlot = _tileSlotsMatrix[row, col];
+        if (tileSlot.transform.childCount >= 1)
+        {
+            Destroy(tileSlot.transform.GetChild(0).gameObject);
+        }
     }
 
     private void Shuffle()
@@ -47,7 +105,7 @@ public class GameBoardMananger : MonoBehaviour
         _horizontalMatches.Clear();
         _verticalMatches.Clear();
 
-        ClearAllVisualTiles();
+        ClearAllTiles();
         SpawnRandomTiles();
 
         CheckForMatches();
@@ -64,15 +122,15 @@ public class GameBoardMananger : MonoBehaviour
                 switch (tileTypeIndex)
                 {
                     case 0:
-                        tile = Instantiate(tile1, _columns[i]).GetComponent<Tile>();
+                        tile = Instantiate(tile1, _tileSlotsMatrix[i, j].transform).GetComponent<Tile>();
                         tile.SetType(TileType.RedCircle);
                         break;
                     case 1:
-                        tile = Instantiate(tile2, _columns[i]).GetComponent<Tile>();
+                        tile = Instantiate(tile2, _tileSlotsMatrix[i, j].transform).GetComponent<Tile>();
                         tile.SetType(TileType.GreenCircle);
                         break;
                     case 2:
-                        tile = Instantiate(tile3, _columns[i]).GetComponent<Tile>();
+                        tile = Instantiate(tile3, _tileSlotsMatrix[i, j].transform).GetComponent<Tile>();
                         tile.SetType(TileType.BlueCircle);
                         break;
                     default:
@@ -83,7 +141,7 @@ public class GameBoardMananger : MonoBehaviour
 
                 tile.SetTileIndex(new Vector2Int(i, j));
                 tile.OnTileClicked += OnTileClicked;
-                TilesMatrix[i, j] = tile;
+                _tilesMatrix[i, j] = tile;
             }
         }
     }
@@ -164,8 +222,8 @@ public class GameBoardMananger : MonoBehaviour
             tile1.SetTileIndex(new Vector2Int(index1.x, index2.y));
             tile2.SetTileIndex(new Vector2Int(index2.x, index1.y));
 
-            TilesMatrix[index1.x, index1.y] = tile2;
-            TilesMatrix[index2.x, index2.y] = tile1;
+            _tilesMatrix[index1.x, index1.y] = tile2;
+            _tilesMatrix[index2.x, index2.y] = tile1;
         }
         else // Horizontal switch
         {
@@ -180,18 +238,22 @@ public class GameBoardMananger : MonoBehaviour
             tile1.SetTileIndex(new Vector2Int(index2.x, index1.y));
             tile2.SetTileIndex(new Vector2Int(index1.x, index2.y));
 
-            TilesMatrix[index1.x, index1.y] = tile2;
-            TilesMatrix[index2.x, index2.y] = tile1;
+            _tilesMatrix[index1.x, index1.y] = tile2;
+            _tilesMatrix[index2.x, index2.y] = tile1;
         }
     }
 
-    private void ClearAllVisualTiles()
+    private void ClearAllTiles()
     {
-        foreach (var col in _columns)
+        foreach (var column in _slotColumns)
         {
-            foreach (Transform child in col)
-            {
-                GameObject.Destroy(child.gameObject);
+            foreach (Transform tileSlot in column)
+            {      
+                if (tileSlot.transform.childCount >= 1)
+                {
+                    GameObject.Destroy(tileSlot.GetChild(0).gameObject);
+                }
+
             }
         }
     }
@@ -216,7 +278,7 @@ public class GameBoardMananger : MonoBehaviour
             {
                 for (int k = 0; k < _numberOfColumns - i - 1; k++)
                 {
-                    if (TilesMatrix[i + k, j].Type == TilesMatrix[i + k + 1, j].Type)
+                    if (_tilesMatrix[i + k, j].Type == _tilesMatrix[i + k + 1, j].Type)
                     {
                         count++;
                     }
@@ -234,7 +296,7 @@ public class GameBoardMananger : MonoBehaviour
                     }
 
                     matches.Add(currentMatchingTiles);
-                    Debug.Log($"Got a horizontal match: [{i},{j}] - {count} number of tiles  - {TilesMatrix[i, j].Type}");
+                    Debug.Log($"Got a horizontal match: [{i},{j}] - {count} number of tiles  - {_tilesMatrix[i, j].Type}");
                 }
                 i += count;
                 count = 1;
@@ -257,7 +319,7 @@ public class GameBoardMananger : MonoBehaviour
             {
                 for (int k = 0; k < _numberOfRows - j - 1; k++)
                 {
-                    if (TilesMatrix[i, j + k].Type == TilesMatrix[i, j + k + 1].Type)
+                    if (_tilesMatrix[i, j + k].Type == _tilesMatrix[i, j + k + 1].Type)
                     {
                         count++;
                     }
@@ -274,7 +336,7 @@ public class GameBoardMananger : MonoBehaviour
                         currentMathingTiles.Add(new Vector2Int(i, j + n));
                     }
                     matches.Add(currentMathingTiles);
-                    Debug.Log($"Got a vertical match: [{i},{j}] - {count} number of tiles  - {TilesMatrix[i, j].Type}");
+                    Debug.Log($"Got a vertical match: [{i},{j}] - {count} number of tiles  - {_tilesMatrix[i, j].Type}");
                 }
                 j += count;
                 count = 1;
