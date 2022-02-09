@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,20 +26,23 @@ public class GameBoardMananger : MonoBehaviour
 
     private List<List<Vector2Int>> _horizontalMatches;
     private List<List<Vector2Int>> _verticalMatches;
+    private List<Match> _matches;
+
 
     private Tile _selectedTile;
 
     private void Awake()
     {
 
-        //_shuffleButton.onClick.AddListener(Shuffle);
-        _shuffleButton.onClick.AddListener(ClearMatches);
+        _shuffleButton.onClick.AddListener(Shuffle);
+        //_shuffleButton.onClick.AddListener(ClearMatches);
 
         _tileSlotsMatrix = new TileSlot[_numberOfColumns, _numberOfRows];
         _tilesMatrix = new Tile[_numberOfColumns, _numberOfRows];
 
         _horizontalMatches = new List<List<Vector2Int>>();
         _verticalMatches = new List<List<Vector2Int>>();
+        _matches = new List<Match>();
 
 
         InitializeSlotMatrix();
@@ -48,7 +52,7 @@ public class GameBoardMananger : MonoBehaviour
     {
         for (int i = 0; i < _numberOfColumns; i++)
         {
-            for (int j = 0; j <_numberOfRows; j++)
+            for (int j = 0; j < _numberOfRows; j++)
             {
                 var tileSlot = _slotColumns[i].GetChild(j).GetComponent<TileSlot>();
                 _tileSlotsMatrix[i, j] = tileSlot;
@@ -86,7 +90,7 @@ public class GameBoardMananger : MonoBehaviour
                 ClearTile(tileIndex.x, tileIndex.y);
             }
         }
-        
+
     }
 
     private void ClearTile(int row, int col)
@@ -166,9 +170,9 @@ public class GameBoardMananger : MonoBehaviour
             {
                 if (CanSwitch(_selectedTile, tile))
                 {
-                    SwitchTiles(_selectedTile, tile);                   
+                    SwitchTiles(_selectedTile, tile);
 
-                    if (FindHorizontalMatches().Count == 0 && FindVerticalMatches().Count  == 0)
+                    if (FindHorizontalMatches().Count == 0 && FindVerticalMatches().Count == 0)
                     {
                         SwitchTiles(_selectedTile, tile);
                     }
@@ -190,7 +194,7 @@ public class GameBoardMananger : MonoBehaviour
     {
         var index1 = tile1.TileIndex;
         var index2 = tile2.TileIndex;
-        
+
         if (IsAdjacent(index1, index2))
         {
             return true;
@@ -248,7 +252,7 @@ public class GameBoardMananger : MonoBehaviour
         foreach (var column in _slotColumns)
         {
             foreach (Transform tileSlot in column)
-            {      
+            {
                 if (tileSlot.transform.childCount >= 1)
                 {
                     GameObject.Destroy(tileSlot.GetChild(0).gameObject);
@@ -261,9 +265,130 @@ public class GameBoardMananger : MonoBehaviour
     // TODO: check for T and L shapes
     private void CheckForMatches()
     {
-        FindHorizontalMatches();
-        FindVerticalMatches();
-    } 
+        // Order here determines priority
+        FindFiveInARow();
+        FindPlusShapes();
+        FindTShapes();
+        FindLShapes();
+        FindFourInARow();
+        FindThreeInARow();
+
+
+        //FindHorizontalMatches();
+        //FindVerticalMatches();
+    }
+
+
+
+    private void FindFiveInARow()
+    {
+        // Horizontal
+        for (int j = 0; j < _numberOfRows; j++)
+        {
+            for (int i = 0; i < _numberOfColumns - 4; i++)
+            {
+                int count = 0;
+                for (int k = 0; k < 4; k++)
+                {
+                    var tile = _tilesMatrix[i + k, j];
+                    var nextTile = _tilesMatrix[i + k + 1, j];
+
+                    if (tile.IsUsed || nextTile.IsUsed || tile.Type != nextTile.Type)
+                    {
+                        break;
+                    }
+                    count++;
+                    if (count == 4)
+                    {
+                        Debug.Log("Found horizontal 5 in a row");
+                        var match = new Match();
+                        match.TileType = tile.Type;
+                        match.MatchType = MatchType.FiveInARow;
+                        match.Coordinates = new List<Vector2Int>();
+
+                        for (int l = 0; l < 5; l++)
+                        {
+                            match.Coordinates.Add(new Vector2Int(i + l, j));
+                            _tilesMatrix[i + l, j].IsUsed = true;
+                        }
+
+                        foreach(var cor in match.Coordinates)
+                        {
+                            Debug.Log(cor.ToString());
+                        }
+
+                        _matches.Add(match);
+                    }
+                }
+            }
+        }
+
+        // Vertical
+        for (int i = 0; i < _numberOfColumns; i++)
+        {
+            for (int j = 0; j < _numberOfRows - 4; j++)
+            {
+                int count = 0;
+                for (int k = 0; k < 4; k++)
+                {
+                    var tile = _tilesMatrix[i, j + k];
+                    var nextTile = _tilesMatrix[i, j + k + 1];
+
+                    if (tile.IsUsed || nextTile.IsUsed || tile.Type != nextTile.Type)
+                    {
+                        break;
+                    }
+                    count++;
+                    if (count == 4)
+                    {
+                        Debug.Log("Found vertical 5 in a row");
+
+                        var match = new Match();
+                        match.TileType = tile.Type;
+                        match.MatchType = MatchType.FiveInARow;
+                        match.Coordinates = new List<Vector2Int>();
+
+                        for (int l = 0; l < 5; l++)
+                        {
+                            match.Coordinates.Add(new Vector2Int(i, j + l));
+                            _tilesMatrix[i, j + l].IsUsed = true;
+                        }
+
+                        foreach (var cor in match.Coordinates)
+                        {
+                            Debug.Log(cor.ToString());
+                        }
+
+                        _matches.Add(match);
+                    }
+                }
+            }
+        }
+    }
+
+    private void FindPlusShapes()
+    {
+
+    }
+
+    private void FindTShapes()
+    {
+    }
+
+    private void FindLShapes()
+    {
+
+    }
+
+    private void FindFourInARow()
+    {
+
+    }
+
+    private void FindThreeInARow()
+    {
+
+    }
 
     private List<List<Vector2Int>> FindHorizontalMatches()
     {
@@ -344,4 +469,5 @@ public class GameBoardMananger : MonoBehaviour
         }
         return matches;
     }
+
 }

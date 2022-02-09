@@ -9,6 +9,7 @@ public class Tile : MonoBehaviour, IPointerClickHandler
 
     public Vector2Int TileIndex { get; private set; }
     public TileType Type { get; private set; }
+    public bool IsUsed = false;
 
     private Image _image;
 
