@@ -72,8 +72,8 @@ public class GameBoardMananger : MonoBehaviour
         _horizontalMatches.Clear();
         _verticalMatches.Clear();
 
-        _horizontalMatches = FindHorizontalMatches();
-        _verticalMatches = FindVerticalMatches();
+        //_horizontalMatches = FindHorizontalMatches();
+        //_verticalMatches = FindVerticalMatches();
 
         foreach (var match in _horizontalMatches)
         {
@@ -172,10 +172,10 @@ public class GameBoardMananger : MonoBehaviour
                 {
                     SwitchTiles(_selectedTile, tile);
 
-                    if (FindHorizontalMatches().Count == 0 && FindVerticalMatches().Count == 0)
-                    {
-                        SwitchTiles(_selectedTile, tile);
-                    }
+                    //if (FindHorizontalMatches().Count == 0 && FindVerticalMatches().Count == 0)
+                    //{
+                    //    SwitchTiles(_selectedTile, tile);
+                    //}
 
                     _selectedTile.SetAsSelected(false);
                     _selectedTile = null;
@@ -266,7 +266,7 @@ public class GameBoardMananger : MonoBehaviour
     private void CheckForMatches()
     {
         // Order here determines priority
-        //FindFiveInARow();
+        FindFiveInARow();
         FindPlusShapes();
         FindTShapes();
         FindLShapes();
@@ -377,12 +377,12 @@ public class GameBoardMananger : MonoBehaviour
                     match.MatchType = MatchType.PlusShape;
                     match.TileType = tileCenter.Type;
                     match.Coordinates = new List<Vector2Int>();
-                    foreach(var tile in tiles)
+                    foreach (var tile in tiles)
                     {
                         tile.IsUsed = true;
                         match.Coordinates.Add(tile.TileIndex);
-                        Debug.Log(tile.TileIndex.ToString());
                     }
+                    _matches.Add(match);
                 }
             }
         }
@@ -390,101 +390,370 @@ public class GameBoardMananger : MonoBehaviour
 
     private void FindTShapes()
     {
+        for (int j = 1; j < _numberOfRows - 1; j++)
+        {
+            for (int i = 0; i < _numberOfColumns - 2; i++)
+            {
+
+                var tileFirst = _tilesMatrix[i, j];
+                var tileMiddle = _tilesMatrix[i + 1, j];
+                var tileLast = _tilesMatrix[i + 2, j];
+
+                var tiles = new List<Tile>() { tileFirst, tileMiddle, tileLast };
+
+                if (tiles.All(t => !t.IsUsed && t.Type == tileFirst.Type))
+                {
+                    var tileFirstUp = _tilesMatrix[i, j - 1];
+                    var tileFirstDown = _tilesMatrix[i, j + 1];
+
+                    if (!tileFirstUp.IsUsed && tileFirstUp.Type == tileFirst.Type && !tileFirstDown.IsUsed && tileFirstDown.Type == tileFirst.Type)
+                    {
+                        tiles.Add(tileFirstUp);
+                        tiles.Add(tileFirstDown);
+
+                        var match = new Match();
+                        match.MatchType = MatchType.TShape;
+                        match.TileType = tileFirst.Type;
+                        match.Coordinates = new List<Vector2Int>();
+                        foreach (var tile in tiles)
+                        {
+                            tile.IsUsed = true;
+                            match.Coordinates.Add(tile.TileIndex);
+                        }
+                        _matches.Add(match);
+                        break;
+                    }
+
+                    var tileLastUp = _tilesMatrix[i + 2, j - 1];
+                    var tileLastDown = _tilesMatrix[i + 2, j + 1];
+
+                    if (!tileLastUp.IsUsed && tileLastUp.Type == tileFirst.Type && !tileLastDown.IsUsed && tileLastDown.Type == tileFirst.Type)
+                    {
+                        Debug.Log("Found a T shape");
+
+                        tiles.Add(tileLastUp);
+                        tiles.Add(tileLastDown);
+
+                        var match = new Match();
+                        match.MatchType = MatchType.TShape;
+                        match.TileType = tileFirst.Type;
+                        match.Coordinates = new List<Vector2Int>();
+                        foreach (var tile in tiles)
+                        {
+                            tile.IsUsed = true;
+                            match.Coordinates.Add(tile.TileIndex);
+                        }
+                        _matches.Add(match);
+                        break;
+                    }
+                }
+
+            }
+        }
+
+        for (int i = 1; i < _numberOfColumns - 1; i++)
+        {
+            for (int j = 0; j < _numberOfRows - 2; j++)
+            {
+
+                var tileFirst = _tilesMatrix[i, j];
+                var tileMiddle = _tilesMatrix[i, j + 1];
+                var tileLast = _tilesMatrix[i, j + 2];
+
+                var tiles = new List<Tile>() { tileFirst, tileMiddle, tileLast };
+
+                if (tiles.All(t => !t.IsUsed && t.Type == tileFirst.Type))
+                {
+                    var tileFirstLeft = _tilesMatrix[i - 1, j];
+                    var tileFirstRight = _tilesMatrix[i + 1, j];
+
+                    if (!tileFirstLeft.IsUsed && tileFirstLeft.Type == tileFirst.Type && !tileFirstRight.IsUsed && tileFirstRight.Type == tileFirst.Type)
+                    {
+                        Debug.Log("Found a T shape");
+
+                        tiles.Add(tileFirstLeft);
+                        tiles.Add(tileFirstRight);
+
+                        var match = new Match();
+                        match.MatchType = MatchType.TShape;
+                        match.TileType = tileFirst.Type;
+                        match.Coordinates = new List<Vector2Int>();
+                        foreach (var tile in tiles)
+                        {
+                            tile.IsUsed = true;
+                            match.Coordinates.Add(tile.TileIndex);
+                        }
+                        _matches.Add(match);
+                        break;
+                    }
+
+                    var tileLastLeft = _tilesMatrix[i - 1, j + 2];
+                    var tileLastRight = _tilesMatrix[i + 1, j + 2];
+
+                    if (!tileLastLeft.IsUsed && tileLastLeft.Type == tileFirst.Type && !tileLastRight.IsUsed && tileLastRight.Type == tileFirst.Type)
+                    {
+                        Debug.Log("Found a T shape");
+
+                        tiles.Add(tileLastLeft);
+                        tiles.Add(tileLastRight);
+
+                        var match = new Match();
+                        match.MatchType = MatchType.TShape;
+                        match.TileType = tileFirst.Type;
+                        match.Coordinates = new List<Vector2Int>();
+                        foreach (var tile in tiles)
+                        {
+                            tile.IsUsed = true;
+                            match.Coordinates.Add(tile.TileIndex);
+                        }
+                        _matches.Add(match);
+                        break;
+                    }
+                }
+
+            }
+        }
     }
 
     private void FindLShapes()
     {
+        for (int j = 0; j < _numberOfRows - 2; j++)
+        {
+            for (int i = 0; i < _numberOfColumns - 2; i++)
+            {
+                var tileFirst = _tilesMatrix[i, j];
+                var tileSecond = _tilesMatrix[i + 1, j];
+                var tileThird = _tilesMatrix[i + 2, j];
 
+                var tiles = new List<Tile>() { tileFirst, tileSecond, tileThird };
+                if (tiles.All(t => !t.IsUsed && t.Type == tileFirst.Type))
+                {
+                    var tileFirstDown = _tilesMatrix[i, j + 1];
+                    var tileFirstDownDown = _tilesMatrix[i, j + 2];
+
+                    if (!tileFirstDown.IsUsed && tileFirstDown.Type == tileFirst.Type && !tileFirstDownDown.IsUsed && tileFirstDownDown.Type == tileFirst.Type)
+                    {
+                        Debug.Log("Found L shape");
+
+                        tiles.Add(tileFirstDown);
+                        tiles.Add(tileFirstDownDown);
+
+                        var match = new Match();
+                        match.MatchType = MatchType.LShape;
+                        match.TileType = tileFirst.Type;
+                        match.Coordinates = new List<Vector2Int>();
+
+                        foreach (var tile in tiles)
+                        {
+                            tile.IsUsed = true;
+                            match.Coordinates.Add(tile.TileIndex);
+                        }
+                        _matches.Add(match);
+                        break;
+                    }
+
+                    var tileLastDown = _tilesMatrix[i + 2, j + 1];
+                    var tileLastDownDown = _tilesMatrix[i + 2, j + 2];
+
+                    if (!tileLastDown.IsUsed && tileLastDown.Type == tileFirst.Type && !tileLastDownDown.IsUsed && tileLastDownDown.Type == tileFirst.Type)
+                    {
+                        Debug.Log("Found L shape");
+
+                        tiles.Add(tileLastDown);
+                        tiles.Add(tileLastDownDown);
+
+                        var match = new Match();
+                        match.MatchType = MatchType.LShape;
+                        match.TileType = tileFirst.Type;
+                        match.Coordinates = new List<Vector2Int>();
+
+                        foreach (var tile in tiles)
+                        {
+                            tile.IsUsed = true;
+                            match.Coordinates.Add(tile.TileIndex);
+                        }
+                        _matches.Add(match);
+                        break;
+                    }
+                }
+            }
+        }
+
+
+        for (int j = 2; j < _numberOfRows; j++)
+        {
+            for (int i = 0; i < _numberOfColumns - 2; i++)
+            {
+                var tileFirst = _tilesMatrix[i, j];
+                var tileSecond = _tilesMatrix[i + 1, j];
+                var tileThird = _tilesMatrix[i + 2, j];
+
+                var tiles = new List<Tile>() { tileFirst, tileSecond, tileThird };
+                if (tiles.All(t => !t.IsUsed && t.Type == tileFirst.Type))
+                {
+                    var tileFirstUp = _tilesMatrix[i, j - 1];
+                    var tileFirstUpUp = _tilesMatrix[i, j - 2];
+
+                    if (!tileFirstUp.IsUsed && tileFirstUp.Type == tileFirst.Type && !tileFirstUpUp.IsUsed && tileFirstUpUp.Type == tileFirst.Type)
+                    {
+                        Debug.Log("Found L shape");
+
+                        tiles.Add(tileFirstUp);
+                        tiles.Add(tileFirstUpUp);
+
+                        var match = new Match();
+                        match.MatchType = MatchType.LShape;
+                        match.TileType = tileFirst.Type;
+                        match.Coordinates = new List<Vector2Int>();
+
+                        foreach (var tile in tiles)
+                        {
+                            tile.IsUsed = true;
+                            match.Coordinates.Add(tile.TileIndex);
+                        }
+                        _matches.Add(match);
+                        break;
+                    }
+
+                    var tileLastUp = _tilesMatrix[i + 2, j - 1];
+                    var tileLastUpUp = _tilesMatrix[i + 2, j - 2];
+
+                    if (!tileLastUp.IsUsed && tileLastUp.Type == tileFirst.Type && !tileLastUpUp.IsUsed && tileLastUpUp.Type == tileFirst.Type)
+                    {
+                        Debug.Log("Found L shape");
+
+                        tiles.Add(tileLastUp);
+                        tiles.Add(tileLastUpUp);
+
+                        var match = new Match();
+                        match.MatchType = MatchType.LShape;
+                        match.TileType = tileFirst.Type;
+                        match.Coordinates = new List<Vector2Int>();
+
+                        foreach (var tile in tiles)
+                        {
+                            tile.IsUsed = true;
+                            match.Coordinates.Add(tile.TileIndex);
+                        }
+                        _matches.Add(match);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     private void FindFourInARow()
     {
+        // Horizontal
+        for (int j = 0; j < _numberOfRows; j++)
+        {
+            for (int i = 0; i < _numberOfColumns - 3; i++)
+            {
+                var tileFirst = _tilesMatrix[i, j];
+                var tileSecond = _tilesMatrix[i + 1, j];
+                var tileThird = _tilesMatrix[i + 2, j];
+                var tileFourth = _tilesMatrix[i + 3, j];
 
+                var tiles = new List<Tile>() { tileFirst, tileSecond, tileThird, tileFourth };
+                if (tiles.All(t => !t.IsUsed && t.Type == tileFirst.Type))
+                {
+                    var match = new Match();
+                    match.MatchType = MatchType.FourInARow;
+                    match.TileType = tileFirst.Type;
+                    match.Coordinates = new List<Vector2Int>();
+                    foreach (var tile in tiles)
+                    {
+                        tile.IsUsed = true;
+                        match.Coordinates.Add(tile.TileIndex);
+                    }
+                    _matches.Add(match);
+                }
+            }
+        }
+
+        // Vertical
+        for (int i = 0; i < _numberOfColumns; i++)
+        {
+            for (int j = 0; j < _numberOfRows - 3; j++)
+            {
+                var tileFirst = _tilesMatrix[i, j];
+                var tileSecond = _tilesMatrix[i, j + 1];
+                var tileThird = _tilesMatrix[i, j + 2];
+                var tileFourth = _tilesMatrix[i, j + 3];
+
+                var tiles = new List<Tile>() { tileFirst, tileSecond, tileThird, tileFourth };
+                if (tiles.All(t => !t.IsUsed && t.Type == tileFirst.Type))
+                {
+                    var match = new Match();
+                    match.MatchType = MatchType.FourInARow;
+                    match.TileType = tileFirst.Type;
+                    match.Coordinates = new List<Vector2Int>();
+                    foreach (var tile in tiles)
+                    {
+                        tile.IsUsed = true;
+                        match.Coordinates.Add(tile.TileIndex);
+                    }
+                    _matches.Add(match);
+                }
+            }
+        }
     }
 
     private void FindThreeInARow()
     {
-
-    }
-
-    private List<List<Vector2Int>> FindHorizontalMatches()
-    {
-        var matches = new List<List<Vector2Int>>();
-
-        int minNumForMatch = 3;
-        int count = 1;
-
+        // Horizontal
         for (int j = 0; j < _numberOfRows; j++)
         {
-            for (int i = 0; i < _numberOfColumns;)
+            for (int i = 0; i < _numberOfColumns - 2; i++)
             {
-                for (int k = 0; k < _numberOfColumns - i - 1; k++)
-                {
-                    if (_tilesMatrix[i + k, j].Type == _tilesMatrix[i + k + 1, j].Type)
-                    {
-                        count++;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                if (count >= minNumForMatch)
-                {
-                    List<Vector2Int> currentMatchingTiles = new List<Vector2Int>();
-                    for (int n = 0; n < count; n++)
-                    {
-                        currentMatchingTiles.Add(new Vector2Int(i + n, j));
-                    }
+                var tileFirst = _tilesMatrix[i, j];
+                var tileSecond = _tilesMatrix[i + 1, j];
+                var tileThird = _tilesMatrix[i + 2, j];
 
-                    matches.Add(currentMatchingTiles);
-                    Debug.Log($"Got a horizontal match: [{i},{j}] - {count} number of tiles  - {_tilesMatrix[i, j].Type}");
+                var tiles = new List<Tile>() { tileFirst, tileSecond, tileThird };
+                if (tiles.All(t => !t.IsUsed && t.Type == tileFirst.Type))
+                {
+                    var match = new Match();
+                    match.MatchType = MatchType.ThreeInARow;
+                    match.TileType = tileFirst.Type;
+                    match.Coordinates = new List<Vector2Int>();
+                    foreach (var tile in tiles)
+                    {
+                        tile.IsUsed = true;
+                        match.Coordinates.Add(tile.TileIndex);
+                        tile.SetAsSelected(true);
+                    }
+                    _matches.Add(match);
                 }
-                i += count;
-                count = 1;
             }
         }
 
-        return matches;
-    }
-
-    private List<List<Vector2Int>> FindVerticalMatches()
-    {
-        var matches = new List<List<Vector2Int>>();
-
-        int minNumForMatch = 3;
-        int count = 1;
-
+        // Vertical
         for (int i = 0; i < _numberOfColumns; i++)
         {
-            for (int j = 0; j < _numberOfRows;)
+            for (int j = 0; j < _numberOfRows - 2; j++)
             {
-                for (int k = 0; k < _numberOfRows - j - 1; k++)
+                var tileFirst = _tilesMatrix[i, j];
+                var tileSecond = _tilesMatrix[i, j + 1];
+                var tileThird = _tilesMatrix[i, j + 2];
+
+                var tiles = new List<Tile>() { tileFirst, tileSecond, tileThird };
+                if (tiles.All(t => !t.IsUsed && t.Type == tileFirst.Type))
                 {
-                    if (_tilesMatrix[i, j + k].Type == _tilesMatrix[i, j + k + 1].Type)
+                    var match = new Match();
+                    match.MatchType = MatchType.ThreeInARow;
+                    match.TileType = tileFirst.Type;
+                    match.Coordinates = new List<Vector2Int>();
+                    foreach (var tile in tiles)
                     {
-                        count++;
+                        tile.IsUsed = true;
+                        match.Coordinates.Add(tile.TileIndex);
+                        tile.SetAsSelected(true);
                     }
-                    else
-                    {
-                        break;
-                    }
+                    _matches.Add(match);
                 }
-                if (count >= minNumForMatch)
-                {
-                    List<Vector2Int> currentMathingTiles = new List<Vector2Int>();
-                    for (int n = 0; n < count; n++)
-                    {
-                        currentMathingTiles.Add(new Vector2Int(i, j + n));
-                    }
-                    matches.Add(currentMathingTiles);
-                    Debug.Log($"Got a vertical match: [{i},{j}] - {count} number of tiles  - {_tilesMatrix[i, j].Type}");
-                }
-                j += count;
-                count = 1;
             }
         }
-        return matches;
     }
-
 }
