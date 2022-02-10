@@ -272,10 +272,6 @@ public class GameBoardMananger : MonoBehaviour
         FindLShapes();
         FindFourInARow();
         FindThreeInARow();
-
-
-        //FindHorizontalMatches();
-        //FindVerticalMatches();
     }
 
 
@@ -305,6 +301,7 @@ public class GameBoardMananger : MonoBehaviour
                         match.TileType = tile.Type;
                         match.MatchType = MatchType.FiveInARow;
                         match.Coordinates = new List<Vector2Int>();
+                        match.SpecialCoordinate = new Vector2Int(i + 2, j);
 
                         for (int l = 0; l < 5; l++)
                         {
@@ -342,6 +339,7 @@ public class GameBoardMananger : MonoBehaviour
                         match.TileType = tile.Type;
                         match.MatchType = MatchType.FiveInARow;
                         match.Coordinates = new List<Vector2Int>();
+                        match.SpecialCoordinate = new Vector2Int(i, j + 2);
 
                         for (int l = 0; l < 5; l++)
                         {
@@ -377,6 +375,7 @@ public class GameBoardMananger : MonoBehaviour
                     match.MatchType = MatchType.PlusShape;
                     match.TileType = tileCenter.Type;
                     match.Coordinates = new List<Vector2Int>();
+                    match.SpecialCoordinate = tileCenter.TileIndex;
                     foreach (var tile in tiles)
                     {
                         tile.IsUsed = true;
@@ -415,6 +414,7 @@ public class GameBoardMananger : MonoBehaviour
                         match.MatchType = MatchType.TShape;
                         match.TileType = tileFirst.Type;
                         match.Coordinates = new List<Vector2Int>();
+                        match.SpecialCoordinate = tileFirst.TileIndex;
                         foreach (var tile in tiles)
                         {
                             tile.IsUsed = true;
@@ -438,6 +438,7 @@ public class GameBoardMananger : MonoBehaviour
                         match.MatchType = MatchType.TShape;
                         match.TileType = tileFirst.Type;
                         match.Coordinates = new List<Vector2Int>();
+                        match.SpecialCoordinate = tileLast.TileIndex;
                         foreach (var tile in tiles)
                         {
                             tile.IsUsed = true;
@@ -478,6 +479,7 @@ public class GameBoardMananger : MonoBehaviour
                         match.MatchType = MatchType.TShape;
                         match.TileType = tileFirst.Type;
                         match.Coordinates = new List<Vector2Int>();
+                        match.SpecialCoordinate = tileFirst.TileIndex;
                         foreach (var tile in tiles)
                         {
                             tile.IsUsed = true;
@@ -501,6 +503,7 @@ public class GameBoardMananger : MonoBehaviour
                         match.MatchType = MatchType.TShape;
                         match.TileType = tileFirst.Type;
                         match.Coordinates = new List<Vector2Int>();
+                        match.SpecialCoordinate = tileLast.TileIndex;
                         foreach (var tile in tiles)
                         {
                             tile.IsUsed = true;
@@ -542,6 +545,7 @@ public class GameBoardMananger : MonoBehaviour
                         match.MatchType = MatchType.LShape;
                         match.TileType = tileFirst.Type;
                         match.Coordinates = new List<Vector2Int>();
+                        match.SpecialCoordinate = tileFirst.TileIndex;
 
                         foreach (var tile in tiles)
                         {
@@ -566,6 +570,7 @@ public class GameBoardMananger : MonoBehaviour
                         match.MatchType = MatchType.LShape;
                         match.TileType = tileFirst.Type;
                         match.Coordinates = new List<Vector2Int>();
+                        match.SpecialCoordinate = tileThird.TileIndex;
 
                         foreach (var tile in tiles)
                         {
@@ -605,6 +610,7 @@ public class GameBoardMananger : MonoBehaviour
                         match.MatchType = MatchType.LShape;
                         match.TileType = tileFirst.Type;
                         match.Coordinates = new List<Vector2Int>();
+                        match.SpecialCoordinate = tileFirst.TileIndex;
 
                         foreach (var tile in tiles)
                         {
@@ -629,6 +635,7 @@ public class GameBoardMananger : MonoBehaviour
                         match.MatchType = MatchType.LShape;
                         match.TileType = tileFirst.Type;
                         match.Coordinates = new List<Vector2Int>();
+                        match.SpecialCoordinate = tileThird.TileIndex;
 
                         foreach (var tile in tiles)
                         {
@@ -662,6 +669,7 @@ public class GameBoardMananger : MonoBehaviour
                     match.MatchType = MatchType.FourInARow;
                     match.TileType = tileFirst.Type;
                     match.Coordinates = new List<Vector2Int>();
+                    match.SpecialCoordinate = tileSecond.TileIndex;
                     foreach (var tile in tiles)
                     {
                         tile.IsUsed = true;
@@ -689,6 +697,8 @@ public class GameBoardMananger : MonoBehaviour
                     match.MatchType = MatchType.FourInARow;
                     match.TileType = tileFirst.Type;
                     match.Coordinates = new List<Vector2Int>();
+                    match.SpecialCoordinate = tileSecond.TileIndex;
+
                     foreach (var tile in tiles)
                     {
                         tile.IsUsed = true;
