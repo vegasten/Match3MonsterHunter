@@ -5,14 +5,10 @@ using UnityEngine.UI;
 
 public class GameBoardMananger : MonoBehaviour
 {
-    // Tiles is currently 6x6
     [SerializeField] private int _numberOfColumns = 6;
     [SerializeField] private int _numberOfRows = 6;
-
     [SerializeField] private List<Transform> _slotColumns;
 
-    // Different tiles
-    // TODO Should be moved somewhere else
     [Header("Tiles")]
     [SerializeField] private GameObject tile1;
     [SerializeField] private GameObject tile2;
@@ -20,6 +16,9 @@ public class GameBoardMananger : MonoBehaviour
 
     [Header("Debug")]
     [SerializeField] private Button _shuffleButton;
+    [SerializeField] private Button _clearButton;
+    [SerializeField] private Button _fallDownButton;
+    [SerializeField] private Button _spawnNewButton;
 
     private TileSlot[,] _tileSlotsMatrix;
     private Tile[,] _tilesMatrix;
@@ -28,14 +27,15 @@ public class GameBoardMananger : MonoBehaviour
     private List<List<Vector2Int>> _verticalMatches;
     private List<Match> _matches;
 
-
     private Tile _selectedTile;
 
     private void Awake()
     {
 
         _shuffleButton.onClick.AddListener(Shuffle);
-        //_shuffleButton.onClick.AddListener(ClearMatches);
+        _clearButton.onClick.AddListener(ClearMatches);
+        _fallDownButton.onClick.AddListener(MakeTilesFallDown);
+        _spawnNewButton.onClick.AddListener(SpawnNewTiles);
 
         _tileSlotsMatrix = new TileSlot[_numberOfColumns, _numberOfRows];
         _tilesMatrix = new Tile[_numberOfColumns, _numberOfRows];
@@ -69,35 +69,99 @@ public class GameBoardMananger : MonoBehaviour
 
     private void ClearMatches()
     {
-        _horizontalMatches.Clear();
-        _verticalMatches.Clear();
-
-        //_horizontalMatches = FindHorizontalMatches();
-        //_verticalMatches = FindVerticalMatches();
-
-        foreach (var match in _horizontalMatches)
+        foreach (var match in _matches)
         {
-            foreach (var tileIndex in match)
+            foreach (var coordinate in match.Coordinates)
             {
-                ClearTile(tileIndex.x, tileIndex.y);
+                ClearTile(coordinate);
             }
         }
-
-        foreach (var match in _verticalMatches)
-        {
-            foreach (var tileIndex in match)
-            {
-                ClearTile(tileIndex.x, tileIndex.y);
-            }
-        }
-
+        _matches.Clear();        
     }
 
-    private void ClearTile(int row, int col)
+    private void MakeTilesFallDown()
     {
-        _tilesMatrix[row, col] = null;
+        bool tileFell = true;
 
-        var tileSlot = _tileSlotsMatrix[row, col];
+        while (tileFell)
+        {
+            tileFell = false;
+            for (int j = _numberOfRows - 2; j >= 0; j--)
+            {
+                for (int i = 0; i < _numberOfColumns; i++)
+                {
+                    var tileUnder = _tilesMatrix[i, j + 1];
+                    var currentTile = _tilesMatrix[i, j];
+
+                    if (tileUnder == null && currentTile != null)
+                    {
+                        _tilesMatrix[i, j] = null;
+                        currentTile.SetTileIndex(new Vector2Int(i, j + 1));
+                        _tilesMatrix[i, j + 1] = currentTile;
+
+                        var boardTile = _tileSlotsMatrix[i, j].transform.GetChild(0);
+                        boardTile.SetParent(_tileSlotsMatrix[i, j + 1].transform);
+                        var rectTransform = boardTile.GetComponent<RectTransform>();
+                        rectTransform.anchoredPosition = Vector2.zero;
+
+                        tileFell = true;
+                    }
+                }
+            }
+        }
+    }
+
+    private void SpawnNewTiles()
+    {
+        for (int i = 0; i < _numberOfColumns; i++)
+        {
+            int count = 0;
+            for (int j = 0; j < _numberOfRows; j++)
+            {
+                if (_tilesMatrix[i, j] == null)
+                {
+                    count++;
+                }
+            }
+
+            for (int k = 0; k < count; k++)
+            {
+                int tileTypeIndex = Random.Range(0, 3); // TODO Connect this and enum in some way                
+                Tile tile;
+                switch (tileTypeIndex)
+                {
+                    case 0:
+                        tile = Instantiate(tile1, _tileSlotsMatrix[i, k].transform).GetComponent<Tile>();
+                        tile.SetType(TileType.RedCircle);
+                        break;
+                    case 1:
+                        tile = Instantiate(tile2, _tileSlotsMatrix[i, k].transform).GetComponent<Tile>();
+                        tile.SetType(TileType.GreenCircle);
+                        break;
+                    case 2:
+                        tile = Instantiate(tile3, _tileSlotsMatrix[i, k].transform).GetComponent<Tile>();
+                        tile.SetType(TileType.BlueCircle);
+                        break;
+                    default:
+                        Debug.LogError("Random index out of range");
+                        tile = new Tile(); // Todo Hack
+                        break;
+                }
+
+                tile.SetTileIndex(new Vector2Int(i, k));
+                tile.OnTileClicked += OnTileClicked;
+                _tilesMatrix[i, k] = tile;
+            }
+        }
+
+        CheckForMatches();
+    }
+
+    private void ClearTile(Vector2Int coordinate)
+    {
+        _tilesMatrix[coordinate.x, coordinate.y] = null;
+
+        var tileSlot = _tileSlotsMatrix[coordinate.x, coordinate.y];
         if (tileSlot.transform.childCount >= 1)
         {
             Destroy(tileSlot.transform.GetChild(0).gameObject);
@@ -732,7 +796,6 @@ public class GameBoardMananger : MonoBehaviour
                     {
                         tile.IsUsed = true;
                         match.Coordinates.Add(tile.TileIndex);
-                        tile.SetAsSelected(true);
                     }
                     _matches.Add(match);
                 }
@@ -759,7 +822,6 @@ public class GameBoardMananger : MonoBehaviour
                     {
                         tile.IsUsed = true;
                         match.Coordinates.Add(tile.TileIndex);
-                        tile.SetAsSelected(true);
                     }
                     _matches.Add(match);
                 }
