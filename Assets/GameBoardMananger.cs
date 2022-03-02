@@ -1,5 +1,5 @@
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,9 +10,7 @@ public class GameBoardMananger : MonoBehaviour
     [SerializeField] private List<Transform> _slotColumns;
 
     [Header("Tiles")]
-    [SerializeField] private GameObject tile1;
-    [SerializeField] private GameObject tile2;
-    [SerializeField] private GameObject tile3;
+    [SerializeField] private List<GameObject> _tileVariants;
 
     [Header("Debug")]
     [SerializeField] private Button _shuffleButton;
@@ -40,10 +38,7 @@ public class GameBoardMananger : MonoBehaviour
         _tileSlotsMatrix = new TileSlot[_numberOfColumns, _numberOfRows];
         _tilesMatrix = new Tile[_numberOfColumns, _numberOfRows];
 
-        _horizontalMatches = new List<List<Vector2Int>>();
-        _verticalMatches = new List<List<Vector2Int>>();
         _matches = new List<Match>();
-
 
         InitializeSlotMatrix();
     }
@@ -126,21 +121,29 @@ public class GameBoardMananger : MonoBehaviour
 
             for (int k = 0; k < count; k++)
             {
-                int tileTypeIndex = Random.Range(0, 3); // TODO Connect this and enum in some way                
+                int tileTypeIndex = Random.Range(0, 5); // TODO Connect this and enum in some way                
                 Tile tile;
                 switch (tileTypeIndex)
                 {
                     case 0:
-                        tile = Instantiate(tile1, _tileSlotsMatrix[i, k].transform).GetComponent<Tile>();
+                        tile = Instantiate(_tileVariants[0], _tileSlotsMatrix[i, k].transform).GetComponent<Tile>();
                         tile.SetType(TileType.RedCircle);
                         break;
                     case 1:
-                        tile = Instantiate(tile2, _tileSlotsMatrix[i, k].transform).GetComponent<Tile>();
+                        tile = Instantiate(_tileVariants[1], _tileSlotsMatrix[i, k].transform).GetComponent<Tile>();
                         tile.SetType(TileType.GreenCircle);
                         break;
                     case 2:
-                        tile = Instantiate(tile3, _tileSlotsMatrix[i, k].transform).GetComponent<Tile>();
+                        tile = Instantiate(_tileVariants[2], _tileSlotsMatrix[i, k].transform).GetComponent<Tile>();
                         tile.SetType(TileType.BlueCircle);
+                        break;
+                    case 3:
+                        tile = Instantiate(_tileVariants[3], _tileSlotsMatrix[i, k].transform).GetComponent<Tile>();
+                        tile.SetType(TileType.YellowCircle);
+                        break;
+                    case 4:
+                        tile = Instantiate(_tileVariants[4], _tileSlotsMatrix[i, k].transform).GetComponent<Tile>();
+                        tile.SetType(TileType.PurpleCircle);
                         break;
                     default:
                         Debug.LogError("Random index out of range");
@@ -150,6 +153,7 @@ public class GameBoardMananger : MonoBehaviour
 
                 tile.SetTileIndex(new Vector2Int(i, k));
                 tile.OnTileClicked += OnTileClicked;
+                tile.IsUsed = false;
                 _tilesMatrix[i, k] = tile;
             }
         }
@@ -164,19 +168,40 @@ public class GameBoardMananger : MonoBehaviour
         var tileSlot = _tileSlotsMatrix[coordinate.x, coordinate.y];
         if (tileSlot.transform.childCount >= 1)
         {
-            Destroy(tileSlot.transform.GetChild(0).gameObject);
+            DestroyImmediate(tileSlot.transform.GetChild(0).gameObject);
         }
     }
 
     private void Shuffle()
     {
-        _horizontalMatches.Clear();
-        _verticalMatches.Clear();
+        //_matches.Clear();
+        //ClearAllTiles();
+        //SpawnRandomTiles();
 
-        ClearAllTiles();
-        SpawnRandomTiles();
+        //CheckForMatches();
+        //ClearMatches();
 
+        StartCoroutine(gameLoopCoroutine());
+    }
+
+    private IEnumerator gameLoopCoroutine()
+    {
         CheckForMatches();
+        while (_matches.Count > 0)
+        {
+            ClearMatches();
+            yield return new WaitForSeconds(1);
+
+            MakeTilesFallDown();
+            yield return new WaitForSeconds(1);
+
+            SpawnNewTiles();
+            yield return new WaitForSeconds(1);
+
+            CheckForMatches();
+        }
+
+        Debug.Log("Finisjed");
     }
 
     private void SpawnRandomTiles()
@@ -185,21 +210,29 @@ public class GameBoardMananger : MonoBehaviour
         {
             for (int j = 0; j < _numberOfRows; j++)
             {
-                int tileTypeIndex = Random.Range(0, 3); // TODO Connect this and enum in some way                
+                int tileTypeIndex = Random.Range(0, 5); // TODO Connect this and enum in some way                
                 Tile tile;
                 switch (tileTypeIndex)
                 {
                     case 0:
-                        tile = Instantiate(tile1, _tileSlotsMatrix[i, j].transform).GetComponent<Tile>();
+                        tile = Instantiate(_tileVariants[0], _tileSlotsMatrix[i, j].transform).GetComponent<Tile>();
                         tile.SetType(TileType.RedCircle);
                         break;
                     case 1:
-                        tile = Instantiate(tile2, _tileSlotsMatrix[i, j].transform).GetComponent<Tile>();
+                        tile = Instantiate(_tileVariants[1], _tileSlotsMatrix[i, j].transform).GetComponent<Tile>();
                         tile.SetType(TileType.GreenCircle);
                         break;
                     case 2:
-                        tile = Instantiate(tile3, _tileSlotsMatrix[i, j].transform).GetComponent<Tile>();
+                        tile = Instantiate(_tileVariants[2], _tileSlotsMatrix[i, j].transform).GetComponent<Tile>();
                         tile.SetType(TileType.BlueCircle);
+                        break;
+                    case 3:
+                        tile = Instantiate(_tileVariants[3], _tileSlotsMatrix[i, j].transform).GetComponent<Tile>();
+                        tile.SetType(TileType.YellowCircle);
+                        break;
+                    case 4:
+                        tile = Instantiate(_tileVariants[4], _tileSlotsMatrix[i, j].transform).GetComponent<Tile>();
+                        tile.SetType(TileType.PurpleCircle);
                         break;
                     default:
                         Debug.LogError("Random index out of range");
@@ -232,24 +265,31 @@ public class GameBoardMananger : MonoBehaviour
             }
             else
             {
-                if (CanSwitch(_selectedTile, tile))
-                {
-                    SwitchTiles(_selectedTile, tile);
+                _selectedTile.SetAsSelected(false);
 
-                    //if (FindHorizontalMatches().Count == 0 && FindVerticalMatches().Count == 0)
-                    //{
-                    //    SwitchTiles(_selectedTile, tile);
-                    //}
+                SwitchTiles(_selectedTile, tile);
 
-                    _selectedTile.SetAsSelected(false);
-                    _selectedTile = null;
-                }
-                else
-                {
-                    _selectedTile.SetAsSelected(false);
-                    tile.SetAsSelected(true);
-                    _selectedTile = tile;
-                }
+                _selectedTile = null;
+
+
+
+
+
+
+                //if (CanSwitch(_selectedTile, tile))
+                //{
+                //    //SwitchTiles(_selectedTile, tile);
+
+
+                //    _selectedTile.SetAsSelected(false);
+                //    _selectedTile = null;
+                //}
+                //else
+                //{
+                //    _selectedTile.SetAsSelected(false);
+                //    tile.SetAsSelected(true);
+                //    _selectedTile = tile;
+                //}
             }
         }
     }
@@ -282,33 +322,58 @@ public class GameBoardMananger : MonoBehaviour
         var index1 = tile1.TileIndex;
         var index2 = tile2.TileIndex;
 
-        if (index1.x == index2.x) // Vertical switch
-        {
-            tile1.transform.SetSiblingIndex(index2.y);
-            tile2.transform.SetSiblingIndex(index1.y);
+        var parent1 = tile1.transform.parent;
+        var parent2 = tile2.transform.parent;
 
-            tile1.SetTileIndex(new Vector2Int(index1.x, index2.y));
-            tile2.SetTileIndex(new Vector2Int(index2.x, index1.y));
+        var siblingIndex1 = tile1.transform.GetSiblingIndex();
+        var siblingIndex2 = tile2.transform.GetSiblingIndex();
 
-            _tilesMatrix[index1.x, index1.y] = tile2;
-            _tilesMatrix[index2.x, index2.y] = tile1;
-        }
-        else // Horizontal switch
-        {
-            var col1 = tile1.transform.parent;
-            var col2 = tile2.transform.parent;
+        tile1.transform.SetParent(parent2);
+        tile2.transform.SetParent(parent1);
 
-            tile1.transform.SetParent(col2);
-            tile1.transform.SetSiblingIndex(index2.y);
-            tile2.transform.SetParent(col1);
-            tile2.transform.SetSiblingIndex(index1.y);
+        tile1.transform.SetSiblingIndex(siblingIndex2);
+        tile2.transform.SetSiblingIndex(siblingIndex1);
 
-            tile1.SetTileIndex(new Vector2Int(index2.x, index1.y));
-            tile2.SetTileIndex(new Vector2Int(index1.x, index2.y));
+        tile1.SetTileIndex(index2);
+        tile2.SetTileIndex(index1);
 
-            _tilesMatrix[index1.x, index1.y] = tile2;
-            _tilesMatrix[index2.x, index2.y] = tile1;
-        }
+        var rectTransform1 = tile1.GetComponent<RectTransform>();
+        rectTransform1.anchoredPosition = Vector2.zero;
+
+        var rectTransform2 = tile2.GetComponent<RectTransform>();
+        rectTransform2.anchoredPosition = Vector2.zero;
+
+        _tilesMatrix[index1.x, index1.y] = tile2;
+        _tilesMatrix[index2.x, index2.y] = tile1;
+
+
+        //if (index1.x == index2.x) // Vertical switch
+        //{
+        //    tile1.transform.SetSiblingIndex(index2.y);
+        //    tile2.transform.SetSiblingIndex(index1.y);
+
+        //    tile1.SetTileIndex(new Vector2Int(index1.x, index2.y));
+        //    tile2.SetTileIndex(new Vector2Int(index2.x, index1.y));
+
+        //    _tilesMatrix[index1.x, index1.y] = tile2;
+        //    _tilesMatrix[index2.x, index2.y] = tile1;
+        //}
+        //else // Horizontal switch
+        //{
+        //    var col1 = tile1.transform.parent;
+        //    var col2 = tile2.transform.parent;
+
+        //    tile1.transform.SetParent(col2);
+        //    tile1.transform.SetSiblingIndex(index2.y);
+        //    tile2.transform.SetParent(col1);
+        //    tile2.transform.SetSiblingIndex(index1.y);
+
+        //    tile1.SetTileIndex(new Vector2Int(index2.x, index1.y));
+        //    tile2.SetTileIndex(new Vector2Int(index1.x, index2.y));
+
+        //    _tilesMatrix[index1.x, index1.y] = tile2;
+        //    _tilesMatrix[index2.x, index2.y] = tile1;
+        //}
     }
 
     private void ClearAllTiles()
@@ -319,7 +384,7 @@ public class GameBoardMananger : MonoBehaviour
             {
                 if (tileSlot.transform.childCount >= 1)
                 {
-                    GameObject.Destroy(tileSlot.GetChild(0).gameObject);
+                    GameObject.DestroyImmediate(tileSlot.GetChild(0).gameObject);
                 }
 
             }
