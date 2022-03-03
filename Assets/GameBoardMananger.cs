@@ -265,31 +265,19 @@ public class GameBoardMananger : MonoBehaviour
             }
             else
             {
-                _selectedTile.SetAsSelected(false);
+                if (CanSwitch(_selectedTile, tile))
+                {
+                    SwitchTiles(_selectedTile, tile);
+                    _selectedTile.SetAsSelected(false);
+                    _selectedTile = null;
+                    StartCoroutine(gameLoopCoroutine());
+                }
+                else
+                {
+                    _selectedTile.SetAsSelected(false);
+                    _selectedTile = null;
+                }
 
-                SwitchTiles(_selectedTile, tile);
-
-                _selectedTile = null;
-
-
-
-
-
-
-                //if (CanSwitch(_selectedTile, tile))
-                //{
-                //    //SwitchTiles(_selectedTile, tile);
-
-
-                //    _selectedTile.SetAsSelected(false);
-                //    _selectedTile = null;
-                //}
-                //else
-                //{
-                //    _selectedTile.SetAsSelected(false);
-                //    tile.SetAsSelected(true);
-                //    _selectedTile = tile;
-                //}
             }
         }
     }
@@ -301,10 +289,36 @@ public class GameBoardMananger : MonoBehaviour
 
         if (IsAdjacent(index1, index2))
         {
-            return true;
+            if (WillMakeAMatchOnSwitch(tile1, tile2))
+            {
+                return true;
+            }
         }
 
         return false;
+    }
+
+    private bool WillMakeAMatchOnSwitch(Tile tile1, Tile tile2)
+    {
+        bool makesAMatch = false;
+
+        _tilesMatrix[tile1.TileIndex.x, tile1.TileIndex.y] = tile2;
+        _tilesMatrix[tile2.TileIndex.x, tile2.TileIndex.y] = tile1;
+
+        CheckForMatches();
+        if (_matches.Count >= 1)
+        {
+            makesAMatch = true;
+        }
+
+        _matches.Clear();
+
+        _tilesMatrix[tile1.TileIndex.x, tile1.TileIndex.y] = tile1;
+        _tilesMatrix[tile2.TileIndex.x, tile2.TileIndex.y] = tile2;
+
+        
+
+        return makesAMatch;
     }
 
     private bool IsAdjacent(Vector2Int index1, Vector2Int index2)
@@ -345,35 +359,6 @@ public class GameBoardMananger : MonoBehaviour
 
         _tilesMatrix[index1.x, index1.y] = tile2;
         _tilesMatrix[index2.x, index2.y] = tile1;
-
-
-        //if (index1.x == index2.x) // Vertical switch
-        //{
-        //    tile1.transform.SetSiblingIndex(index2.y);
-        //    tile2.transform.SetSiblingIndex(index1.y);
-
-        //    tile1.SetTileIndex(new Vector2Int(index1.x, index2.y));
-        //    tile2.SetTileIndex(new Vector2Int(index2.x, index1.y));
-
-        //    _tilesMatrix[index1.x, index1.y] = tile2;
-        //    _tilesMatrix[index2.x, index2.y] = tile1;
-        //}
-        //else // Horizontal switch
-        //{
-        //    var col1 = tile1.transform.parent;
-        //    var col2 = tile2.transform.parent;
-
-        //    tile1.transform.SetParent(col2);
-        //    tile1.transform.SetSiblingIndex(index2.y);
-        //    tile2.transform.SetParent(col1);
-        //    tile2.transform.SetSiblingIndex(index1.y);
-
-        //    tile1.SetTileIndex(new Vector2Int(index2.x, index1.y));
-        //    tile2.SetTileIndex(new Vector2Int(index1.x, index2.y));
-
-        //    _tilesMatrix[index1.x, index1.y] = tile2;
-        //    _tilesMatrix[index2.x, index2.y] = tile1;
-        //}
     }
 
     private void ClearAllTiles()
@@ -403,5 +388,13 @@ public class GameBoardMananger : MonoBehaviour
         _matches.AddRange(matchChecker.FindLShapes(_tilesMatrix, _numberOfRows, _numberOfColumns));
         _matches.AddRange(matchChecker.FindFourInARow(_tilesMatrix, _numberOfRows, _numberOfColumns));
         _matches.AddRange(matchChecker.FindThreeInARow(_tilesMatrix, _numberOfRows, _numberOfColumns));
+
+        for (int i = 0; i < _numberOfColumns; i++)
+        {
+            for (int j = 0; j < _numberOfRows; j++)
+            {
+                _tilesMatrix[i, j].IsUsed = false;
+            }
+        }
     }
 }
