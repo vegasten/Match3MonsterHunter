@@ -13,12 +13,8 @@ public class GameBoardMananger : MonoBehaviour
     [SerializeField] private BoardFactory _boardFactory;
     [SerializeField] private TileFactory _tileFactory;
 
-    // TODO Remove after refactor
     [Header("Debug")]
-    [SerializeField] private Button _shuffleButton;
-    [SerializeField] private Button _clearButton;
-    [SerializeField] private Button _fallDownButton;
-    [SerializeField] private Button _spawnNewButton;
+    [SerializeField] private Button _shuffleButton;    
 
     private TileSlot[,] _tileSlotMatrix;
     private TileData[,] _tilesMatrix;
@@ -30,14 +26,7 @@ public class GameBoardMananger : MonoBehaviour
 
     private void Awake()
     {
-
-        _shuffleButton.onClick.AddListener(DebugShuffle);
-        //_clearButton.onClick.AddListener(ClearMatches);
-        //_fallDownButton.onClick.AddListener(MakeTilesFallDown);
-        //_spawnNewButton.onClick.AddListener(SpawnNewTiles);
-
         _tilesMatrix = new TileData[_numberOfColumns, _numberOfRows];
-
         _matches = new List<Match>();
         _matchChecker = new MatchChecker();
     }
@@ -47,7 +36,7 @@ public class GameBoardMananger : MonoBehaviour
         _tileSlotMatrix = _boardFactory.CreateBoard(_numberOfColumns, _numberOfRows);
 
         SpawnRandomTilesWithNoMatch();
-    }      
+    }
 
     private void ClearAllTiles()
     {
@@ -92,11 +81,8 @@ public class GameBoardMananger : MonoBehaviour
             for (int j = 0; j < _numberOfRows; j++)
             {
                 int tileTypeIndex = Random.Range(0, 5); // TODO Connect this and enum in some way                
-                TileData tile = new TileData();
-
-                tile.Type = (TileType)tileTypeIndex;
-                tile.TileIndex = new Vector2Int(i, j);
-                _tilesMatrix[i, j] = tile;
+                TileData tileData = new TileData(i, j, (TileType)tileTypeIndex);
+                _tilesMatrix[i, j] = tileData;
             }
         }
     }
@@ -149,19 +135,12 @@ public class GameBoardMananger : MonoBehaviour
         _matches.Clear();
     }
 
-
     private void ClearTile(Vector2Int coordinate)
     {
         _tilesMatrix[coordinate.x, coordinate.y] = null;
 
         var tileSlot = _tileSlotMatrix[coordinate.x, coordinate.y];
         tileSlot.Clear();
-    }
-
-    private void DebugShuffle()
-    {
-        //StartCoroutine(ClearingLoop());
-        //ChangeToNoMatches();
     }
 
     private IEnumerator ClearingLoop()
@@ -210,7 +189,7 @@ public class GameBoardMananger : MonoBehaviour
                     if (tileUnder == null && currentTile != null)
                     {
                         _tilesMatrix[i, j] = null;
-                        currentTile.TileIndex =new Vector2Int(i, j + 1);
+                        currentTile.TileIndex = new Vector2Int(i, j + 1);
                         _tilesMatrix[i, j + 1] = currentTile;
 
                         var boardTile = _tileSlotMatrix[i, j].transform.GetChild(0);
@@ -243,9 +222,7 @@ public class GameBoardMananger : MonoBehaviour
             {
                 var tileType = (TileType)(Random.Range(0, 5)); // TODO Connect this and enum in some way                
 
-                var tileData = new TileData();
-                tileData.TileIndex = new Vector2Int(i, k);
-                tileData.Type = tileType;
+                var tileData = new TileData(i, k, tileType);
                 _tilesMatrix[i, k] = tileData;
                 tileData.IsUsed = false;
 
@@ -368,15 +345,6 @@ public class GameBoardMananger : MonoBehaviour
         var rectTransform2 = tile2.GetComponent<RectTransform>();
         rectTransform2.anchoredPosition = Vector2.zero;
 
-
         _tilesMatrix.Swap(index1, index2);
-
-        //var tileData1 = _tilesMatrix[index1.x, index1.y];
-        //var tileData2 = _tilesMatrix[index2.x, index2.y];
-
-        //tileData1.TileIndex = index2;
-        //tileData2.TileIndex = index1;
-        
-        //(_tilesMatrix[index1.x, index1.y], _tilesMatrix[index2.x, index2.y]) = (_tilesMatrix[index2.x, index2.y], _tilesMatrix[index1.x, index1.y]);
     }
 }
