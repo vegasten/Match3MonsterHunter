@@ -952,6 +952,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bdddbed18ec560e40a8ee674a09e2ffb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _gameBoard: {fileID: 1522611106}
   _numberOfColumns: 6
   _numberOfRows: 6
   _boardFactory: {fileID: 819651346}
@@ -1000,6 +1001,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afe484dda12b40243b9e38235e765f5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _tileFactory: {fileID: 819651347}
+  _boardFactory: {fileID: 819651346}
 --- !u!1 &1588315840
 GameObject:
   m_ObjectHideFlags: 0

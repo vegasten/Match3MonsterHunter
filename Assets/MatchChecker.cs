@@ -29,12 +29,12 @@ public class MatchChecker
                         var match = new Match();
                         match.TileType = tile.Type;
                         match.MatchType = MatchType.FiveInARow;
-                        match.Coordinates = new List<Vector2Int>();
-                        match.SpecialCoordinate = new Vector2Int(i + 2, j);
+                        match.Index = new List<Vector2Int>();
+                        match.SpecialIndex = new Vector2Int(i + 2, j);
 
                         for (int l = 0; l < 5; l++)
                         {
-                            match.Coordinates.Add(new Vector2Int(i + l, j));
+                            match.Index.Add(new Vector2Int(i + l, j));
                             tilesMatrix[i + l, j].IsUsed = true;
                         }
 
@@ -65,12 +65,12 @@ public class MatchChecker
                         var match = new Match();
                         match.TileType = tile.Type;
                         match.MatchType = MatchType.FiveInARow;
-                        match.Coordinates = new List<Vector2Int>();
-                        match.SpecialCoordinate = new Vector2Int(i, j + 2);
+                        match.Index = new List<Vector2Int>();
+                        match.SpecialIndex = new Vector2Int(i, j + 2);
 
                         for (int l = 0; l < 5; l++)
                         {
-                            match.Coordinates.Add(new Vector2Int(i, j + l));
+                            match.Index.Add(new Vector2Int(i, j + l));
                             tilesMatrix[i, j + l].IsUsed = true;
                         }
 
@@ -104,12 +104,12 @@ public class MatchChecker
                     var match = new Match();
                     match.MatchType = MatchType.PlusShape;
                     match.TileType = tileCenter.Type;
-                    match.Coordinates = new List<Vector2Int>();
-                    match.SpecialCoordinate = tileCenter.TileIndex;
+                    match.Index = new List<Vector2Int>();
+                    match.SpecialIndex = tileCenter.TileIndex;
                     foreach (var tile in tiles)
                     {
                         tile.IsUsed = true;
-                        match.Coordinates.Add(tile.TileIndex);
+                        match.Index.Add(tile.TileIndex);
                     }
                     matches.Add(match);
                 }
@@ -146,12 +146,12 @@ public class MatchChecker
                         var match = new Match();
                         match.MatchType = MatchType.TShape;
                         match.TileType = tileFirst.Type;
-                        match.Coordinates = new List<Vector2Int>();
-                        match.SpecialCoordinate = tileFirst.TileIndex;
+                        match.Index = new List<Vector2Int>();
+                        match.SpecialIndex = tileFirst.TileIndex;
                         foreach (var tile in tiles)
                         {
                             tile.IsUsed = true;
-                            match.Coordinates.Add(tile.TileIndex);
+                            match.Index.Add(tile.TileIndex);
                         }
                         matches.Add(match);
                         break;
@@ -168,12 +168,12 @@ public class MatchChecker
                         var match = new Match();
                         match.MatchType = MatchType.TShape;
                         match.TileType = tileFirst.Type;
-                        match.Coordinates = new List<Vector2Int>();
-                        match.SpecialCoordinate = tileLast.TileIndex;
+                        match.Index = new List<Vector2Int>();
+                        match.SpecialIndex = tileLast.TileIndex;
                         foreach (var tile in tiles)
                         {
                             tile.IsUsed = true;
-                            match.Coordinates.Add(tile.TileIndex);
+                            match.Index.Add(tile.TileIndex);
                         }
                         matches.Add(match);
                         break;
@@ -207,12 +207,12 @@ public class MatchChecker
                         var match = new Match();
                         match.MatchType = MatchType.TShape;
                         match.TileType = tileFirst.Type;
-                        match.Coordinates = new List<Vector2Int>();
-                        match.SpecialCoordinate = tileFirst.TileIndex;
+                        match.Index = new List<Vector2Int>();
+                        match.SpecialIndex = tileFirst.TileIndex;
                         foreach (var tile in tiles)
                         {
                             tile.IsUsed = true;
-                            match.Coordinates.Add(tile.TileIndex);
+                            match.Index.Add(tile.TileIndex);
                         }
                         matches.Add(match);
                         break;
@@ -229,12 +229,12 @@ public class MatchChecker
                         var match = new Match();
                         match.MatchType = MatchType.TShape;
                         match.TileType = tileFirst.Type;
-                        match.Coordinates = new List<Vector2Int>();
-                        match.SpecialCoordinate = tileLast.TileIndex;
+                        match.Index = new List<Vector2Int>();
+                        match.SpecialIndex = tileLast.TileIndex;
                         foreach (var tile in tiles)
                         {
                             tile.IsUsed = true;
-                            match.Coordinates.Add(tile.TileIndex);
+                            match.Index.Add(tile.TileIndex);
                         }
                         matches.Add(match);
                         break;
@@ -272,13 +272,13 @@ public class MatchChecker
                         var match = new Match();
                         match.MatchType = MatchType.LShape;
                         match.TileType = tileFirst.Type;
-                        match.Coordinates = new List<Vector2Int>();
-                        match.SpecialCoordinate = tileFirst.TileIndex;
+                        match.Index = new List<Vector2Int>();
+                        match.SpecialIndex = tileFirst.TileIndex;
 
                         foreach (var tile in tiles)
                         {
                             tile.IsUsed = true;
-                            match.Coordinates.Add(tile.TileIndex);
+                            match.Index.Add(tile.TileIndex);
                         }
                         matches.Add(match);
                         break;
@@ -295,13 +295,13 @@ public class MatchChecker
                         var match = new Match();
                         match.MatchType = MatchType.LShape;
                         match.TileType = tileFirst.Type;
-                        match.Coordinates = new List<Vector2Int>();
-                        match.SpecialCoordinate = tileThird.TileIndex;
+                        match.Index = new List<Vector2Int>();
+                        match.SpecialIndex = tileThird.TileIndex;
 
                         foreach (var tile in tiles)
                         {
                             tile.IsUsed = true;
-                            match.Coordinates.Add(tile.TileIndex);
+                            match.Index.Add(tile.TileIndex);
                         }
                         matches.Add(match);
                         break;
@@ -333,13 +333,13 @@ public class MatchChecker
                         var match = new Match();
                         match.MatchType = MatchType.LShape;
                         match.TileType = tileFirst.Type;
-                        match.Coordinates = new List<Vector2Int>();
-                        match.SpecialCoordinate = tileFirst.TileIndex;
+                        match.Index = new List<Vector2Int>();
+                        match.SpecialIndex = tileFirst.TileIndex;
 
                         foreach (var tile in tiles)
                         {
                             tile.IsUsed = true;
-                            match.Coordinates.Add(tile.TileIndex);
+                            match.Index.Add(tile.TileIndex);
                         }
                         matches.Add(match);
                         break;
@@ -356,13 +356,13 @@ public class MatchChecker
                         var match = new Match();
                         match.MatchType = MatchType.LShape;
                         match.TileType = tileFirst.Type;
-                        match.Coordinates = new List<Vector2Int>();
-                        match.SpecialCoordinate = tileThird.TileIndex;
+                        match.Index = new List<Vector2Int>();
+                        match.SpecialIndex = tileThird.TileIndex;
 
                         foreach (var tile in tiles)
                         {
                             tile.IsUsed = true;
-                            match.Coordinates.Add(tile.TileIndex);
+                            match.Index.Add(tile.TileIndex);
                         }
                         matches.Add(match);
                         break;
@@ -393,12 +393,12 @@ public class MatchChecker
                     var match = new Match();
                     match.MatchType = MatchType.FourInARow;
                     match.TileType = tileFirst.Type;
-                    match.Coordinates = new List<Vector2Int>();
-                    match.SpecialCoordinate = tileSecond.TileIndex;
+                    match.Index = new List<Vector2Int>();
+                    match.SpecialIndex = tileSecond.TileIndex;
                     foreach (var tile in tiles)
                     {
                         tile.IsUsed = true;
-                        match.Coordinates.Add(tile.TileIndex);
+                        match.Index.Add(tile.TileIndex);
                     }
                     matches.Add(match);
                 }
@@ -421,13 +421,13 @@ public class MatchChecker
                     var match = new Match();
                     match.MatchType = MatchType.FourInARow;
                     match.TileType = tileFirst.Type;
-                    match.Coordinates = new List<Vector2Int>();
-                    match.SpecialCoordinate = tileSecond.TileIndex;
+                    match.Index = new List<Vector2Int>();
+                    match.SpecialIndex = tileSecond.TileIndex;
 
                     foreach (var tile in tiles)
                     {
                         tile.IsUsed = true;
-                        match.Coordinates.Add(tile.TileIndex);
+                        match.Index.Add(tile.TileIndex);
                     }
                     matches.Add(match);
                 }
@@ -455,11 +455,11 @@ public class MatchChecker
                     var match = new Match();
                     match.MatchType = MatchType.ThreeInARow;
                     match.TileType = tileFirst.Type;
-                    match.Coordinates = new List<Vector2Int>();
+                    match.Index = new List<Vector2Int>();
                     foreach (var tile in tiles)
                     {
                         tile.IsUsed = true;
-                        match.Coordinates.Add(tile.TileIndex);
+                        match.Index.Add(tile.TileIndex);
                     }
                     matches.Add(match);
                 }
@@ -481,11 +481,11 @@ public class MatchChecker
                     var match = new Match();
                     match.MatchType = MatchType.ThreeInARow;
                     match.TileType = tileFirst.Type;
-                    match.Coordinates = new List<Vector2Int>();
+                    match.Index = new List<Vector2Int>();
                     foreach (var tile in tiles)
                     {
                         tile.IsUsed = true;
-                        match.Coordinates.Add(tile.TileIndex);
+                        match.Index.Add(tile.TileIndex);
                     }
                     matches.Add(match);
                 }

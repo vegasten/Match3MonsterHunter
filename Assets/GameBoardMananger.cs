@@ -5,6 +5,9 @@ using UnityEngine.UI;
 
 public class GameBoardMananger : MonoBehaviour
 {
+    [Header("Board")]
+    [SerializeField] private GameBoard _gameBoard;
+
     [Header("Game board settings")]
     [SerializeField] private int _numberOfColumns = 6;
     [SerializeField] private int _numberOfRows = 6;
@@ -14,9 +17,9 @@ public class GameBoardMananger : MonoBehaviour
     [SerializeField] private TileFactory _tileFactory;
 
     [Header("Debug")]
-    [SerializeField] private Button _shuffleButton;    
+    [SerializeField] private Button _shuffleButton;
 
-    private TileSlot[,] _tileSlotMatrix;
+    //private TileSlot[,] _tileSlotMatrix;
     private TileData[,] _tilesMatrix;
 
     private List<Match> _matches;
@@ -33,17 +36,14 @@ public class GameBoardMananger : MonoBehaviour
 
     private void Start()
     {
-        _tileSlotMatrix = _boardFactory.CreateBoard(_numberOfColumns, _numberOfRows);
-
+        _gameBoard.TileClicked += OnTileClicked;
+        _gameBoard.InitializeBoard(_numberOfColumns, _numberOfRows);
         SpawnRandomTilesWithNoMatch();
     }
 
-    private void ClearAllTiles()
+    private void OnDestroy()
     {
-        foreach (var tileSlot in _tileSlotMatrix)
-        {
-            tileSlot.Clear();
-        }
+        _gameBoard.TileClicked -= OnTileClicked;
     }
 
     private void SpawnRandomTilesWithNoMatch()
@@ -71,9 +71,9 @@ public class GameBoardMananger : MonoBehaviour
             matches.Clear();
         }
 
-        VisualizeTiles();
-
+        _gameBoard.VisualizeTileData(_tilesMatrix);
     }
+
     private void CreateRandomTilesData()
     {
         for (int i = 0; i < _numberOfColumns; i++)
@@ -83,22 +83,6 @@ public class GameBoardMananger : MonoBehaviour
                 int tileTypeIndex = Random.Range(0, 5); // TODO Connect this and enum in some way                
                 TileData tileData = new TileData(i, j, (TileType)tileTypeIndex);
                 _tilesMatrix[i, j] = tileData;
-            }
-        }
-    }
-
-    private void VisualizeTiles()
-    {
-        ClearAllTiles();
-
-        for (int i = 0; i < _numberOfColumns; i++)
-        {
-            for (int j = 0; j < _numberOfRows; j++)
-            {
-                var tileType = _tilesMatrix[i, j].Type;
-                var tile = Instantiate(_tileFactory.GetTile(tileType), _tileSlotMatrix[i, j].transform).GetComponent<Tile>();
-                tile.SetTileIndex(new Vector2Int(i, j));
-                tile.OnTileClicked += OnTileClicked;
             }
         }
     }
@@ -123,24 +107,18 @@ public class GameBoardMananger : MonoBehaviour
             tileData.IsUsed = false;
         }
     }
+
     private void ClearMatches()
     {
         foreach (var match in _matches)
         {
-            foreach (var coordinate in match.Coordinates)
+            foreach (var index in match.Index)
             {
-                ClearTile(coordinate);
+                _tilesMatrix.Clear(index);
+                _gameBoard.ClearTile(index);
             }
         }
         _matches.Clear();
-    }
-
-    private void ClearTile(Vector2Int coordinate)
-    {
-        _tilesMatrix[coordinate.x, coordinate.y] = null;
-
-        var tileSlot = _tileSlotMatrix[coordinate.x, coordinate.y];
-        tileSlot.Clear();
     }
 
     private IEnumerator ClearingLoop()
@@ -192,11 +170,7 @@ public class GameBoardMananger : MonoBehaviour
                         currentTile.TileIndex = new Vector2Int(i, j + 1);
                         _tilesMatrix[i, j + 1] = currentTile;
 
-                        var boardTile = _tileSlotMatrix[i, j].transform.GetChild(0);
-                        boardTile.SetParent(_tileSlotMatrix[i, j + 1].transform);
-                        boardTile.GetComponent<Tile>().SetTileIndex(new Vector2Int(i, j + 1));
-                        var rectTransform = boardTile.GetComponent<RectTransform>();
-                        rectTransform.anchoredPosition = Vector2.zero;
+                        _gameBoard.MoveTile(new Vector2Int(i, j), new Vector2Int(i, j + 1));
 
                         tileFell = true;
                     }
@@ -227,10 +201,7 @@ public class GameBoardMananger : MonoBehaviour
                 tileData.IsUsed = false;
 
                 var tilePrefab = _tileFactory.GetTile(tileType);
-                var tile = _tileSlotMatrix[i, k].InstantiateTile(tilePrefab);
-
-                tile.SetTileIndex(new Vector2Int(i, k));
-                tile.OnTileClicked += OnTileClicked;
+                _gameBoard.InstantiateTile(tilePrefab, new Vector2Int(i, k));
             }
         }
     }
@@ -321,30 +292,7 @@ public class GameBoardMananger : MonoBehaviour
 
     private void SwitchTiles(Tile tile1, Tile tile2)
     {
-        var index1 = tile1.TileIndex;
-        var index2 = tile2.TileIndex;
-
-        var parent1 = tile1.transform.parent;
-        var parent2 = tile2.transform.parent;
-
-        var siblingIndex1 = tile1.transform.GetSiblingIndex();
-        var siblingIndex2 = tile2.transform.GetSiblingIndex();
-
-        tile1.transform.SetParent(parent2);
-        tile2.transform.SetParent(parent1);
-
-        tile1.transform.SetSiblingIndex(siblingIndex2);
-        tile2.transform.SetSiblingIndex(siblingIndex1);
-
-        tile1.SetTileIndex(index2);
-        tile2.SetTileIndex(index1);
-
-        var rectTransform1 = tile1.GetComponent<RectTransform>();
-        rectTransform1.anchoredPosition = Vector2.zero;
-
-        var rectTransform2 = tile2.GetComponent<RectTransform>();
-        rectTransform2.anchoredPosition = Vector2.zero;
-
-        _tilesMatrix.Swap(index1, index2);
+        _gameBoard.SwapTiles(tile1, tile2);
+        _tilesMatrix.Swap(tile1.TileIndex, tile2.TileIndex);
     }
 }

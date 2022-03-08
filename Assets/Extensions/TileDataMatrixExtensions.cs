@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public static class MatrixExtensions 
+public static class TileDataMatrixExtensions 
 {
     public static void Swap(this TileData[,] tileMatrix, Vector2Int index1, Vector2Int index2)
     {
@@ -23,5 +23,10 @@ public static class MatrixExtensions
     public static void Set(this TileData[,] tileMatrix, Vector2Int index, TileData tileData)
     {
         tileMatrix[index.x, index.y] = tileData;
+    }
+
+    public static void Clear(this TileData[,] tileMatrix, Vector2Int index)
+    {
+        tileMatrix[index.x, index.y] = null;
     }
 }
