@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MatchChecker
 {
-    public List<Match> FindFiveInARow(Tile[,] tilesMatrix, int numberOfRows, int numberOfColumns)
+    public List<Match> FindFiveInARow(TileData[,] tilesMatrix, int numberOfRows, int numberOfColumns)
     {
         var matches = new List<Match>();
 
@@ -26,7 +26,6 @@ public class MatchChecker
                     count++;
                     if (count == 4)
                     {
-                        Debug.Log("Found horizontal 5 in a row");
                         var match = new Match();
                         match.TileType = tile.Type;
                         match.MatchType = MatchType.FiveInARow;
@@ -63,8 +62,6 @@ public class MatchChecker
                     count++;
                     if (count == 4)
                     {
-                        Debug.Log("Found vertical 5 in a row");
-
                         var match = new Match();
                         match.TileType = tile.Type;
                         match.MatchType = MatchType.FiveInARow;
@@ -85,7 +82,7 @@ public class MatchChecker
         return matches;
     }
 
-    public List<Match> FindPlusShapes(Tile[,] tilesMatrix, int numberOfRows, int numberOfColumns)
+    public List<Match> FindPlusShapes(TileData[,] tilesMatrix, int numberOfRows, int numberOfColumns)
     {
         var matches = new List<Match>();
 
@@ -99,7 +96,7 @@ public class MatchChecker
                 var tileUp = tilesMatrix[i, j - 1];
                 var tileDown = tilesMatrix[i, j + 1];
 
-                var tiles = new List<Tile>() { tileCenter, tileLeft, tileRight, tileUp, tileDown };
+                var tiles = new List<TileData>() { tileCenter, tileLeft, tileRight, tileUp, tileDown };
 
                 if (tiles.All(t => !t.IsUsed && t.Type == tileCenter.Type))
                 {
@@ -121,7 +118,7 @@ public class MatchChecker
         return matches;
     }
 
-    public List<Match> FindTShapes(Tile[,] tilesMatrix, int numberOfRows, int numberOfColumns)
+    public List<Match> FindTShapes(TileData[,] tilesMatrix, int numberOfRows, int numberOfColumns)
     {
         var matches = new List<Match>();
 
@@ -134,7 +131,7 @@ public class MatchChecker
                 var tileMiddle = tilesMatrix[i + 1, j];
                 var tileLast = tilesMatrix[i + 2, j];
 
-                var tiles = new List<Tile>() { tileFirst, tileMiddle, tileLast };
+                var tiles = new List<TileData>() { tileFirst, tileMiddle, tileLast };
 
                 if (tiles.All(t => !t.IsUsed && t.Type == tileFirst.Type))
                 {
@@ -165,8 +162,6 @@ public class MatchChecker
 
                     if (!tileLastUp.IsUsed && tileLastUp.Type == tileFirst.Type && !tileLastDown.IsUsed && tileLastDown.Type == tileFirst.Type)
                     {
-                        Debug.Log("Found a T shape");
-
                         tiles.Add(tileLastUp);
                         tiles.Add(tileLastDown);
 
@@ -197,7 +192,7 @@ public class MatchChecker
                 var tileMiddle = tilesMatrix[i, j + 1];
                 var tileLast = tilesMatrix[i, j + 2];
 
-                var tiles = new List<Tile>() { tileFirst, tileMiddle, tileLast };
+                var tiles = new List<TileData>() { tileFirst, tileMiddle, tileLast };
 
                 if (tiles.All(t => !t.IsUsed && t.Type == tileFirst.Type))
                 {
@@ -206,8 +201,6 @@ public class MatchChecker
 
                     if (!tileFirstLeft.IsUsed && tileFirstLeft.Type == tileFirst.Type && !tileFirstRight.IsUsed && tileFirstRight.Type == tileFirst.Type)
                     {
-                        Debug.Log("Found a T shape");
-
                         tiles.Add(tileFirstLeft);
                         tiles.Add(tileFirstRight);
 
@@ -230,8 +223,6 @@ public class MatchChecker
 
                     if (!tileLastLeft.IsUsed && tileLastLeft.Type == tileFirst.Type && !tileLastRight.IsUsed && tileLastRight.Type == tileFirst.Type)
                     {
-                        Debug.Log("Found a T shape");
-
                         tiles.Add(tileLastLeft);
                         tiles.Add(tileLastRight);
 
@@ -255,7 +246,7 @@ public class MatchChecker
         return matches;
     }
 
-    public List<Match> FindLShapes(Tile[,] tilesMatrix, int numberOfRows, int numberOfColumns)
+    public List<Match> FindLShapes(TileData[,] tilesMatrix, int numberOfRows, int numberOfColumns)
     {
         var matches = new List<Match>();
 
@@ -267,7 +258,7 @@ public class MatchChecker
                 var tileSecond = tilesMatrix[i + 1, j];
                 var tileThird = tilesMatrix[i + 2, j];
 
-                var tiles = new List<Tile>() { tileFirst, tileSecond, tileThird };
+                var tiles = new List<TileData>() { tileFirst, tileSecond, tileThird };
                 if (tiles.All(t => !t.IsUsed && t.Type == tileFirst.Type))
                 {
                     var tileFirstDown = tilesMatrix[i, j + 1];
@@ -275,8 +266,6 @@ public class MatchChecker
 
                     if (!tileFirstDown.IsUsed && tileFirstDown.Type == tileFirst.Type && !tileFirstDownDown.IsUsed && tileFirstDownDown.Type == tileFirst.Type)
                     {
-                        Debug.Log("Found L shape");
-
                         tiles.Add(tileFirstDown);
                         tiles.Add(tileFirstDownDown);
 
@@ -300,8 +289,6 @@ public class MatchChecker
 
                     if (!tileLastDown.IsUsed && tileLastDown.Type == tileFirst.Type && !tileLastDownDown.IsUsed && tileLastDownDown.Type == tileFirst.Type)
                     {
-                        Debug.Log("Found L shape");
-
                         tiles.Add(tileLastDown);
                         tiles.Add(tileLastDownDown);
 
@@ -332,7 +319,7 @@ public class MatchChecker
                 var tileSecond = tilesMatrix[i + 1, j];
                 var tileThird = tilesMatrix[i + 2, j];
 
-                var tiles = new List<Tile>() { tileFirst, tileSecond, tileThird };
+                var tiles = new List<TileData>() { tileFirst, tileSecond, tileThird };
                 if (tiles.All(t => !t.IsUsed && t.Type == tileFirst.Type))
                 {
                     var tileFirstUp = tilesMatrix[i, j - 1];
@@ -340,8 +327,6 @@ public class MatchChecker
 
                     if (!tileFirstUp.IsUsed && tileFirstUp.Type == tileFirst.Type && !tileFirstUpUp.IsUsed && tileFirstUpUp.Type == tileFirst.Type)
                     {
-                        Debug.Log("Found L shape");
-
                         tiles.Add(tileFirstUp);
                         tiles.Add(tileFirstUpUp);
 
@@ -365,8 +350,6 @@ public class MatchChecker
 
                     if (!tileLastUp.IsUsed && tileLastUp.Type == tileFirst.Type && !tileLastUpUp.IsUsed && tileLastUpUp.Type == tileFirst.Type)
                     {
-                        Debug.Log("Found L shape");
-
                         tiles.Add(tileLastUp);
                         tiles.Add(tileLastUpUp);
 
@@ -390,7 +373,7 @@ public class MatchChecker
         return matches;
     }
 
-    public List<Match> FindFourInARow(Tile[,] tilesMatrix, int numberOfRows, int numberOfColumns)
+    public List<Match> FindFourInARow(TileData[,] tilesMatrix, int numberOfRows, int numberOfColumns)
     {
         var matches = new List<Match>();
 
@@ -404,7 +387,7 @@ public class MatchChecker
                 var tileThird = tilesMatrix[i + 2, j];
                 var tileFourth = tilesMatrix[i + 3, j];
 
-                var tiles = new List<Tile>() { tileFirst, tileSecond, tileThird, tileFourth };
+                var tiles = new List<TileData>() { tileFirst, tileSecond, tileThird, tileFourth };
                 if (tiles.All(t => !t.IsUsed && t.Type == tileFirst.Type))
                 {
                     var match = new Match();
@@ -432,7 +415,7 @@ public class MatchChecker
                 var tileThird = tilesMatrix[i, j + 2];
                 var tileFourth = tilesMatrix[i, j + 3];
 
-                var tiles = new List<Tile>() { tileFirst, tileSecond, tileThird, tileFourth };
+                var tiles = new List<TileData>() { tileFirst, tileSecond, tileThird, tileFourth };
                 if (tiles.All(t => !t.IsUsed && t.Type == tileFirst.Type))
                 {
                     var match = new Match();
@@ -453,7 +436,7 @@ public class MatchChecker
         return matches;
     }
 
-    public List<Match> FindThreeInARow(Tile[,] tilesMatrix, int numberOfRows, int numberOfColumns)
+    public List<Match> FindThreeInARow(TileData[,] tilesMatrix, int numberOfRows, int numberOfColumns)
     {
         var matches = new List<Match>();
 
@@ -466,7 +449,7 @@ public class MatchChecker
                 var tileSecond = tilesMatrix[i + 1, j];
                 var tileThird = tilesMatrix[i + 2, j];
 
-                var tiles = new List<Tile>() { tileFirst, tileSecond, tileThird };
+                var tiles = new List<TileData>() { tileFirst, tileSecond, tileThird };
                 if (tiles.All(t => !t.IsUsed && t.Type == tileFirst.Type))
                 {
                     var match = new Match();
@@ -492,7 +475,7 @@ public class MatchChecker
                 var tileSecond = tilesMatrix[i, j + 1];
                 var tileThird = tilesMatrix[i, j + 2];
 
-                var tiles = new List<Tile>() { tileFirst, tileSecond, tileThird };
+                var tiles = new List<TileData>() { tileFirst, tileSecond, tileThird };
                 if (tiles.All(t => !t.IsUsed && t.Type == tileFirst.Type))
                 {
                     var match = new Match();

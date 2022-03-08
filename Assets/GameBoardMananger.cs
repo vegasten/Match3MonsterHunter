@@ -5,63 +5,138 @@ using UnityEngine.UI;
 
 public class GameBoardMananger : MonoBehaviour
 {
+    [Header("Game board settings")]
     [SerializeField] private int _numberOfColumns = 6;
     [SerializeField] private int _numberOfRows = 6;
-    [SerializeField] private List<Transform> _slotColumns;
 
-    [Header("Tiles")]
-    [SerializeField] private List<GameObject> _tileVariants;
+    [Header("Factories")]
+    [SerializeField] private BoardFactory _boardFactory;
+    [SerializeField] private TileFactory _tileFactory;
 
+    // TODO Remove after refactor
     [Header("Debug")]
     [SerializeField] private Button _shuffleButton;
     [SerializeField] private Button _clearButton;
     [SerializeField] private Button _fallDownButton;
     [SerializeField] private Button _spawnNewButton;
 
-    private TileSlot[,] _tileSlotsMatrix;
-    private Tile[,] _tilesMatrix;
+    private TileSlot[,] _tileSlotMatrix;
+    private TileData[,] _tilesMatrix;
 
-    private List<List<Vector2Int>> _horizontalMatches;
-    private List<List<Vector2Int>> _verticalMatches;
     private List<Match> _matches;
 
     private Tile _selectedTile;
+    private MatchChecker _matchChecker;
 
     private void Awake()
     {
 
-        _shuffleButton.onClick.AddListener(Shuffle);
-        _clearButton.onClick.AddListener(ClearMatches);
-        _fallDownButton.onClick.AddListener(MakeTilesFallDown);
-        _spawnNewButton.onClick.AddListener(SpawnNewTiles);
+        _shuffleButton.onClick.AddListener(DebugShuffle);
+        //_clearButton.onClick.AddListener(ClearMatches);
+        //_fallDownButton.onClick.AddListener(MakeTilesFallDown);
+        //_spawnNewButton.onClick.AddListener(SpawnNewTiles);
 
-        _tileSlotsMatrix = new TileSlot[_numberOfColumns, _numberOfRows];
-        _tilesMatrix = new Tile[_numberOfColumns, _numberOfRows];
+        _tilesMatrix = new TileData[_numberOfColumns, _numberOfRows];
 
         _matches = new List<Match>();
-
-        InitializeSlotMatrix();
+        _matchChecker = new MatchChecker();
     }
 
-    private void InitializeSlotMatrix()
+    private void Start()
+    {
+        _tileSlotMatrix = _boardFactory.CreateBoard(_numberOfColumns, _numberOfRows);
+
+        SpawnRandomTilesWithNoMatch();
+    }      
+
+    private void ClearAllTiles()
+    {
+        foreach (var tileSlot in _tileSlotMatrix)
+        {
+            tileSlot.Clear();
+        }
+    }
+
+    private void SpawnRandomTilesWithNoMatch()
+    {
+        bool hasMatches = true;
+
+        CreateRandomTilesData();
+        while (hasMatches)
+        {
+            var matches = _matchChecker.FindThreeInARow(_tilesMatrix, _numberOfRows, _numberOfColumns);
+
+            if (matches.Count == 0)
+            {
+                hasMatches = false;
+            }
+            else
+            {
+                // TODO Just change single tiles instead of spawning everything new
+                // Should be enough to change the center of a three-in-a-row
+
+                CreateRandomTilesData();
+
+            }
+            ClearAllIsUsed();
+            matches.Clear();
+        }
+
+        VisualizeTiles();
+
+    }
+    private void CreateRandomTilesData()
     {
         for (int i = 0; i < _numberOfColumns; i++)
         {
             for (int j = 0; j < _numberOfRows; j++)
             {
-                var tileSlot = _slotColumns[i].GetChild(j).GetComponent<TileSlot>();
-                _tileSlotsMatrix[i, j] = tileSlot;
+                int tileTypeIndex = Random.Range(0, 5); // TODO Connect this and enum in some way                
+                TileData tile = new TileData();
+
+                tile.Type = (TileType)tileTypeIndex;
+                tile.TileIndex = new Vector2Int(i, j);
+                _tilesMatrix[i, j] = tile;
             }
         }
     }
 
-
-    private void Start()
+    private void VisualizeTiles()
     {
         ClearAllTiles();
-        SpawnRandomTiles();
+
+        for (int i = 0; i < _numberOfColumns; i++)
+        {
+            for (int j = 0; j < _numberOfRows; j++)
+            {
+                var tileType = _tilesMatrix[i, j].Type;
+                var tile = Instantiate(_tileFactory.GetTile(tileType), _tileSlotMatrix[i, j].transform).GetComponent<Tile>();
+                tile.SetTileIndex(new Vector2Int(i, j));
+                tile.OnTileClicked += OnTileClicked;
+            }
+        }
     }
 
+    private void CheckForMatches()
+    {
+        // Order here determines priority
+        _matches.AddRange(_matchChecker.FindFiveInARow(_tilesMatrix, _numberOfRows, _numberOfColumns));
+        _matches.AddRange(_matchChecker.FindPlusShapes(_tilesMatrix, _numberOfRows, _numberOfColumns));
+        _matches.AddRange(_matchChecker.FindTShapes(_tilesMatrix, _numberOfRows, _numberOfColumns));
+        _matches.AddRange(_matchChecker.FindLShapes(_tilesMatrix, _numberOfRows, _numberOfColumns));
+        _matches.AddRange(_matchChecker.FindFourInARow(_tilesMatrix, _numberOfRows, _numberOfColumns));
+        _matches.AddRange(_matchChecker.FindThreeInARow(_tilesMatrix, _numberOfRows, _numberOfColumns));
+
+        ClearAllIsUsed();
+    }
+
+    private void ClearAllIsUsed()
+    {
+        foreach (var tileData in _tilesMatrix)
+        {
+            tileData.IsUsed = false;
+        }
+    }
     private void ClearMatches()
     {
         foreach (var match in _matches)
@@ -72,6 +147,50 @@ public class GameBoardMananger : MonoBehaviour
             }
         }
         _matches.Clear();
+    }
+
+
+    private void ClearTile(Vector2Int coordinate)
+    {
+        _tilesMatrix[coordinate.x, coordinate.y] = null;
+
+        var tileSlot = _tileSlotMatrix[coordinate.x, coordinate.y];
+        tileSlot.Clear();
+    }
+
+    private void DebugShuffle()
+    {
+        //StartCoroutine(ClearingLoop());
+        //ChangeToNoMatches();
+    }
+
+    private IEnumerator ClearingLoop()
+    {
+        bool matchExisted = true;
+
+        while (matchExisted)
+        {
+            CheckForMatches();
+            if (_matches.Count == 0)
+            {
+                matchExisted = false;
+                continue;
+            }
+
+            ClearMatches();
+
+            yield return new WaitForSeconds(1);
+
+            MakeTilesFallDown();
+
+            yield return new WaitForSeconds(1);
+
+            SpawnNewTiles();
+
+            yield return new WaitForSeconds(1);
+        }
+
+        Debug.Log("Finished loop");
     }
 
     private void MakeTilesFallDown()
@@ -91,11 +210,12 @@ public class GameBoardMananger : MonoBehaviour
                     if (tileUnder == null && currentTile != null)
                     {
                         _tilesMatrix[i, j] = null;
-                        currentTile.SetTileIndex(new Vector2Int(i, j + 1));
+                        currentTile.TileIndex =new Vector2Int(i, j + 1);
                         _tilesMatrix[i, j + 1] = currentTile;
 
-                        var boardTile = _tileSlotsMatrix[i, j].transform.GetChild(0);
-                        boardTile.SetParent(_tileSlotsMatrix[i, j + 1].transform);
+                        var boardTile = _tileSlotMatrix[i, j].transform.GetChild(0);
+                        boardTile.SetParent(_tileSlotMatrix[i, j + 1].transform);
+                        boardTile.GetComponent<Tile>().SetTileIndex(new Vector2Int(i, j + 1));
                         var rectTransform = boardTile.GetComponent<RectTransform>();
                         rectTransform.anchoredPosition = Vector2.zero;
 
@@ -121,136 +241,25 @@ public class GameBoardMananger : MonoBehaviour
 
             for (int k = 0; k < count; k++)
             {
-                int tileTypeIndex = Random.Range(0, 5); // TODO Connect this and enum in some way                
-                Tile tile;
-                switch (tileTypeIndex)
-                {
-                    case 0:
-                        tile = Instantiate(_tileVariants[0], _tileSlotsMatrix[i, k].transform).GetComponent<Tile>();
-                        tile.SetType(TileType.RedCircle);
-                        break;
-                    case 1:
-                        tile = Instantiate(_tileVariants[1], _tileSlotsMatrix[i, k].transform).GetComponent<Tile>();
-                        tile.SetType(TileType.GreenCircle);
-                        break;
-                    case 2:
-                        tile = Instantiate(_tileVariants[2], _tileSlotsMatrix[i, k].transform).GetComponent<Tile>();
-                        tile.SetType(TileType.BlueCircle);
-                        break;
-                    case 3:
-                        tile = Instantiate(_tileVariants[3], _tileSlotsMatrix[i, k].transform).GetComponent<Tile>();
-                        tile.SetType(TileType.YellowCircle);
-                        break;
-                    case 4:
-                        tile = Instantiate(_tileVariants[4], _tileSlotsMatrix[i, k].transform).GetComponent<Tile>();
-                        tile.SetType(TileType.PurpleCircle);
-                        break;
-                    default:
-                        Debug.LogError("Random index out of range");
-                        tile = new Tile(); // Todo Hack
-                        break;
-                }
+                var tileType = (TileType)(Random.Range(0, 5)); // TODO Connect this and enum in some way                
+
+                var tileData = new TileData();
+                tileData.TileIndex = new Vector2Int(i, k);
+                tileData.Type = tileType;
+                _tilesMatrix[i, k] = tileData;
+                tileData.IsUsed = false;
+
+                var tilePrefab = _tileFactory.GetTile(tileType);
+                var tile = _tileSlotMatrix[i, k].InstantiateTile(tilePrefab);
 
                 tile.SetTileIndex(new Vector2Int(i, k));
                 tile.OnTileClicked += OnTileClicked;
-                tile.IsUsed = false;
-                _tilesMatrix[i, k] = tile;
-            }
-        }
-
-        CheckForMatches();
-    }
-
-    private void ClearTile(Vector2Int coordinate)
-    {
-        _tilesMatrix[coordinate.x, coordinate.y] = null;
-
-        var tileSlot = _tileSlotsMatrix[coordinate.x, coordinate.y];
-        if (tileSlot.transform.childCount >= 1)
-        {
-            DestroyImmediate(tileSlot.transform.GetChild(0).gameObject);
-        }
-    }
-
-    private void Shuffle()
-    {
-        //_matches.Clear();
-        //ClearAllTiles();
-        //SpawnRandomTiles();
-
-        //CheckForMatches();
-        //ClearMatches();
-
-        StartCoroutine(gameLoopCoroutine());
-    }
-
-    private IEnumerator gameLoopCoroutine()
-    {
-        CheckForMatches();
-        while (_matches.Count > 0)
-        {
-            ClearMatches();
-            yield return new WaitForSeconds(1);
-
-            MakeTilesFallDown();
-            yield return new WaitForSeconds(1);
-
-            SpawnNewTiles();
-            yield return new WaitForSeconds(1);
-
-            CheckForMatches();
-        }
-
-        Debug.Log("Finisjed");
-    }
-
-    private void SpawnRandomTiles()
-    {
-        for (int i = 0; i < _numberOfColumns; i++)
-        {
-            for (int j = 0; j < _numberOfRows; j++)
-            {
-                int tileTypeIndex = Random.Range(0, 5); // TODO Connect this and enum in some way                
-                Tile tile;
-                switch (tileTypeIndex)
-                {
-                    case 0:
-                        tile = Instantiate(_tileVariants[0], _tileSlotsMatrix[i, j].transform).GetComponent<Tile>();
-                        tile.SetType(TileType.RedCircle);
-                        break;
-                    case 1:
-                        tile = Instantiate(_tileVariants[1], _tileSlotsMatrix[i, j].transform).GetComponent<Tile>();
-                        tile.SetType(TileType.GreenCircle);
-                        break;
-                    case 2:
-                        tile = Instantiate(_tileVariants[2], _tileSlotsMatrix[i, j].transform).GetComponent<Tile>();
-                        tile.SetType(TileType.BlueCircle);
-                        break;
-                    case 3:
-                        tile = Instantiate(_tileVariants[3], _tileSlotsMatrix[i, j].transform).GetComponent<Tile>();
-                        tile.SetType(TileType.YellowCircle);
-                        break;
-                    case 4:
-                        tile = Instantiate(_tileVariants[4], _tileSlotsMatrix[i, j].transform).GetComponent<Tile>();
-                        tile.SetType(TileType.PurpleCircle);
-                        break;
-                    default:
-                        Debug.LogError("Random index out of range");
-                        tile = new Tile(); // Todo Hack
-                        break;
-                }
-
-                tile.SetTileIndex(new Vector2Int(i, j));
-                tile.OnTileClicked += OnTileClicked;
-                _tilesMatrix[i, j] = tile;
             }
         }
     }
 
     private void OnTileClicked(Tile tile)
     {
-        var tileIndex = tile.TileIndex;
-
         if (_selectedTile == null)
         {
             tile.SetAsSelected(true);
@@ -270,7 +279,7 @@ public class GameBoardMananger : MonoBehaviour
                     SwitchTiles(_selectedTile, tile);
                     _selectedTile.SetAsSelected(false);
                     _selectedTile = null;
-                    StartCoroutine(gameLoopCoroutine());
+                    StartCoroutine(ClearingLoop());
                 }
                 else
                 {
@@ -289,36 +298,16 @@ public class GameBoardMananger : MonoBehaviour
 
         if (IsAdjacent(index1, index2))
         {
-            if (WillMakeAMatchOnSwitch(tile1, tile2))
+            var tileData1 = _tilesMatrix[index1.x, index1.y];
+            var tileData2 = _tilesMatrix[index2.x, index2.y];
+
+            if (WillMakeAMatchOnSwitch(tileData1, tileData2))
             {
                 return true;
             }
         }
 
         return false;
-    }
-
-    private bool WillMakeAMatchOnSwitch(Tile tile1, Tile tile2)
-    {
-        bool makesAMatch = false;
-
-        _tilesMatrix[tile1.TileIndex.x, tile1.TileIndex.y] = tile2;
-        _tilesMatrix[tile2.TileIndex.x, tile2.TileIndex.y] = tile1;
-
-        CheckForMatches();
-        if (_matches.Count >= 1)
-        {
-            makesAMatch = true;
-        }
-
-        _matches.Clear();
-
-        _tilesMatrix[tile1.TileIndex.x, tile1.TileIndex.y] = tile1;
-        _tilesMatrix[tile2.TileIndex.x, tile2.TileIndex.y] = tile2;
-
-        
-
-        return makesAMatch;
     }
 
     private bool IsAdjacent(Vector2Int index1, Vector2Int index2)
@@ -329,6 +318,28 @@ public class GameBoardMananger : MonoBehaviour
             return true;
         else
             return false;
+    }
+
+    private bool WillMakeAMatchOnSwitch(TileData tileData1, TileData tileData2)
+    {
+        bool makesAMatch = false;
+
+        _tilesMatrix[tileData1.TileIndex.x, tileData1.TileIndex.y] = tileData2;
+        _tilesMatrix[tileData2.TileIndex.x, tileData2.TileIndex.y] = tileData1;
+
+        CheckForMatches();
+        if (_matches.Count >= 1)
+        {
+            makesAMatch = true;
+        }
+
+        _matches.Clear();
+
+        _tilesMatrix[tileData1.TileIndex.x, tileData1.TileIndex.y] = tileData1;
+        _tilesMatrix[tileData2.TileIndex.x, tileData2.TileIndex.y] = tileData2;
+
+
+        return makesAMatch;
     }
 
     private void SwitchTiles(Tile tile1, Tile tile2)
@@ -357,44 +368,15 @@ public class GameBoardMananger : MonoBehaviour
         var rectTransform2 = tile2.GetComponent<RectTransform>();
         rectTransform2.anchoredPosition = Vector2.zero;
 
-        _tilesMatrix[index1.x, index1.y] = tile2;
-        _tilesMatrix[index2.x, index2.y] = tile1;
-    }
 
-    private void ClearAllTiles()
-    {
-        foreach (var column in _slotColumns)
-        {
-            foreach (Transform tileSlot in column)
-            {
-                if (tileSlot.transform.childCount >= 1)
-                {
-                    GameObject.DestroyImmediate(tileSlot.GetChild(0).gameObject);
-                }
+        _tilesMatrix.Swap(index1, index2);
 
-            }
-        }
-    }
+        //var tileData1 = _tilesMatrix[index1.x, index1.y];
+        //var tileData2 = _tilesMatrix[index2.x, index2.y];
 
-    // TODO: check for T and L shapes
-    private void CheckForMatches()
-    {
-
-        var matchChecker = new MatchChecker();
-        // Order here determines priority
-        _matches.AddRange(matchChecker.FindFiveInARow(_tilesMatrix, _numberOfRows, _numberOfColumns));
-        _matches.AddRange(matchChecker.FindPlusShapes(_tilesMatrix, _numberOfRows, _numberOfColumns));
-        _matches.AddRange(matchChecker.FindTShapes(_tilesMatrix, _numberOfRows, _numberOfColumns));
-        _matches.AddRange(matchChecker.FindLShapes(_tilesMatrix, _numberOfRows, _numberOfColumns));
-        _matches.AddRange(matchChecker.FindFourInARow(_tilesMatrix, _numberOfRows, _numberOfColumns));
-        _matches.AddRange(matchChecker.FindThreeInARow(_tilesMatrix, _numberOfRows, _numberOfColumns));
-
-        for (int i = 0; i < _numberOfColumns; i++)
-        {
-            for (int j = 0; j < _numberOfRows; j++)
-            {
-                _tilesMatrix[i, j].IsUsed = false;
-            }
-        }
+        //tileData1.TileIndex = index2;
+        //tileData2.TileIndex = index1;
+        
+        //(_tilesMatrix[index1.x, index1.y], _tilesMatrix[index2.x, index2.y]) = (_tilesMatrix[index2.x, index2.y], _tilesMatrix[index1.x, index1.y]);
     }
 }
