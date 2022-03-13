@@ -83,6 +83,7 @@ public class GameBoard : MonoBehaviour
     {
         var tile = Instantiate(tilePrefab, _board.Get(index).transform).GetComponent<Tile>();
         tile.SetTileIndex(index);
+        tile.OnTileClicked += OnTileClicked;
     }
 
     private void OnTileClicked(Tile tile)
