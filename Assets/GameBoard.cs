@@ -100,7 +100,7 @@ public class GameBoard : MonoBehaviour
         switch (direction)
         {
             case Direction.R:
-                nextTileIndex = tile.TileIndex + new Vector2Int(1, 0);                
+                nextTileIndex = tile.TileIndex + new Vector2Int(1, 0);
                 break;
             case Direction.L:
                 nextTileIndex = tile.TileIndex - new Vector2Int(1, 0);
@@ -112,8 +112,6 @@ public class GameBoard : MonoBehaviour
                 nextTileIndex = tile.TileIndex + new Vector2Int(0, 1);
                 break;
         }
-
-        Debug.Log($"First tile: {tile.TileIndex}   Next tile: {nextTileIndex}");
 
         if (nextTileIndex.x < 0 || nextTileIndex.x > _numberOfColumns - 1)
         {

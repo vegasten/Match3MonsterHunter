@@ -100,7 +100,6 @@ public class MatchChecker
 
                 if (tiles.All(t => !t.IsUsed && t.Type == tileCenter.Type))
                 {
-                    Debug.Log("Found a plus shape!");
                     var match = new Match();
                     match.MatchType = MatchType.PlusShape;
                     match.TileType = tileCenter.Type;
