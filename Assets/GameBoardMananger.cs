@@ -135,6 +135,7 @@ public class GameBoardMananger : MonoBehaviour
             yield return new WaitForSeconds(1);
         }
 
+        GameManager.IsBoardInputEnabled = true;
         Debug.Log("Finished loop");
     }
 
@@ -199,6 +200,7 @@ public class GameBoardMananger : MonoBehaviour
         if (CanSwitch(tile, nextTile))
         {
             SwitchTiles(tile, nextTile);
+            GameManager.IsBoardInputEnabled = false;           
             StartCoroutine(ClearingLoop());
         }
     }

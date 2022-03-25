@@ -18,22 +18,31 @@ public class Tile : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPoin
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        _isClickedActive = true;
+        if (GameManager.IsBoardInputEnabled)
+        {
+            _isClickedActive = true;
+        }
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        _isClickedActive = false;
+        if (GameManager.IsBoardInputEnabled)
+        {
+            _isClickedActive = false;
+        }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (_isClickedActive)
+        if (GameManager.IsBoardInputEnabled)
         {
-            _isClickedActive = false;
+            if (_isClickedActive)
+            {
+                _isClickedActive = false;
 
-            var direction = DeductDirection(transform.position, Input.mousePosition);
-            OnTileDragged?.Invoke(this, direction);
+                var direction = DeductDirection(transform.position, Input.mousePosition);
+                OnTileDragged?.Invoke(this, direction);
+            }
         }
     }
 
