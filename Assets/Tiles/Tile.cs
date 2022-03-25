@@ -1,42 +1,68 @@
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
-public class Tile : MonoBehaviour, IPointerClickHandler
+public class Tile : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
 {
-    public event Action<Tile> OnTileClicked;
-    private Image _image;
-
-    [SerializeField] private Color _unselectedColor;
-    [SerializeField] private Color _selectedColor;
+    public event Action<Tile, Direction> OnTileDragged;
 
     public Vector2Int TileIndex { get; private set; }
-
-    private void Awake()
-    {
-        _image = GetComponent<Image>();
-    }
-
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        OnTileClicked?.Invoke(this);
-    }
-
-    public void SetAsSelected(bool IsSelected)
-    {
-        if (IsSelected)
-        {
-            _image.color = _selectedColor;
-        }
-        else
-        {
-            _image.color = _unselectedColor;
-        }
-    }
 
     public void SetTileIndex(Vector2Int index)
     {
         TileIndex = index;
+    }
+
+    private bool _isClickedActive = false;
+
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        _isClickedActive = true;
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        _isClickedActive = false;
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (_isClickedActive)
+        {
+            _isClickedActive = false;
+
+            var direction = DeductDirection(transform.position, Input.mousePosition);
+            OnTileDragged?.Invoke(this, direction);
+        }
+    }
+
+    private Direction DeductDirection(Vector3 start, Vector3 end)
+    {
+        var diffHorizontal = end.x - start.x;
+        var diffVertival = end.y - start.y;
+
+        if (Math.Abs(diffHorizontal) >= Math.Abs(diffVertival))
+        {
+            if (diffHorizontal >= 0)
+            {
+                return Direction.R;
+            }
+            else
+            {
+                return Direction.L;
+            }
+        }
+        else
+        {
+            if (diffVertival >= 0)
+            {
+                return Direction.U;
+            }
+            else
+            {
+                return Direction.D;
+            }
+        }
     }
 }

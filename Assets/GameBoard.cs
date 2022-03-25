@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class GameBoard : MonoBehaviour
 {
-    public event Action<Tile> TileClicked;
+    public event Action<Tile, Tile> OnTileDragged;
 
     [SerializeField] private TileFactory _tileFactory;
     [SerializeField] private BoardFactory _boardFactory;
@@ -14,7 +14,6 @@ public class GameBoard : MonoBehaviour
 
     public void InitializeBoard(int numberOfColums, int numberOfRows)
     {
-        //_board = new TileSlot[numberOfColums, numberOfRows];
         _numberOfColumns = numberOfColums;
         _numberOfRows = numberOfRows;
 
@@ -32,7 +31,7 @@ public class GameBoard : MonoBehaviour
                 var tileType = tileDataMatrix[i, j].Type;
                 var tile = Instantiate(_tileFactory.GetTile(tileType), _board[i, j].transform).GetComponent<Tile>(); // TODO where should factory be used
                 tile.SetTileIndex(new Vector2Int(i, j));
-                tile.OnTileClicked += OnTileClicked;
+                tile.OnTileDragged += TileDragged;
             }
         }
     }
@@ -83,12 +82,7 @@ public class GameBoard : MonoBehaviour
     {
         var tile = Instantiate(tilePrefab, _board.Get(index).transform).GetComponent<Tile>();
         tile.SetTileIndex(index);
-        tile.OnTileClicked += OnTileClicked;
-    }
-
-    private void OnTileClicked(Tile tile)
-    {
-        TileClicked?.Invoke(tile);
+        tile.OnTileDragged += TileDragged;
     }
 
     private void ClearAllTiles()
@@ -97,5 +91,41 @@ public class GameBoard : MonoBehaviour
         {
             slot.Clear();
         }
+    }
+
+    private void TileDragged(Tile tile, Direction direction)
+    {
+        var nextTileIndex = new Vector2Int(-1, -1);
+
+        switch (direction)
+        {
+            case Direction.R:
+                nextTileIndex = tile.TileIndex + new Vector2Int(1, 0);                
+                break;
+            case Direction.L:
+                nextTileIndex = tile.TileIndex - new Vector2Int(1, 0);
+                break;
+            case Direction.U:
+                nextTileIndex = tile.TileIndex - new Vector2Int(0, 1);
+                break;
+            case Direction.D:
+                nextTileIndex = tile.TileIndex + new Vector2Int(0, 1);
+                break;
+        }
+
+        Debug.Log($"First tile: {tile.TileIndex}   Next tile: {nextTileIndex}");
+
+        if (nextTileIndex.x < 0 || nextTileIndex.x > _numberOfColumns - 1)
+        {
+            return;
+        }
+
+        if (nextTileIndex.y < 0 || nextTileIndex.y > _numberOfRows - 1)
+        {
+            return;
+        }
+
+        var nextTile = _board.Get(nextTileIndex).GetComponentInChildren<Tile>();
+        OnTileDragged?.Invoke(tile, nextTile);
     }
 }

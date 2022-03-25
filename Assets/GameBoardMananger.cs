@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class GameBoardMananger : MonoBehaviour
 {
@@ -13,18 +12,12 @@ public class GameBoardMananger : MonoBehaviour
     [SerializeField] private int _numberOfRows = 6;
 
     [Header("Factories")]
-    [SerializeField] private BoardFactory _boardFactory;
     [SerializeField] private TileFactory _tileFactory;
 
     [Header("Debug")]
-    [SerializeField] private Button _shuffleButton;
 
-    //private TileSlot[,] _tileSlotMatrix;
     private TileData[,] _tilesMatrix;
-
     private List<Match> _matches;
-
-    private Tile _selectedTile;
     private MatchChecker _matchChecker;
 
     private void Awake()
@@ -36,14 +29,9 @@ public class GameBoardMananger : MonoBehaviour
 
     private void Start()
     {
-        _gameBoard.TileClicked += OnTileClicked;
         _gameBoard.InitializeBoard(_numberOfColumns, _numberOfRows);
         SpawnRandomTilesWithNoMatch();
-    }
-
-    private void OnDestroy()
-    {
-        _gameBoard.TileClicked -= OnTileClicked;
+        _gameBoard.OnTileDragged += OnTileDragged;
     }
 
     private void SpawnRandomTilesWithNoMatch()
@@ -206,36 +194,12 @@ public class GameBoardMananger : MonoBehaviour
         }
     }
 
-    private void OnTileClicked(Tile tile)
+    private void OnTileDragged(Tile tile, Tile nextTile)
     {
-        if (_selectedTile == null)
+        if (CanSwitch(tile, nextTile))
         {
-            tile.SetAsSelected(true);
-            _selectedTile = tile;
-        }
-        else
-        {
-            if (_selectedTile == tile)
-            {
-                _selectedTile.SetAsSelected(false);
-                _selectedTile = null;
-            }
-            else
-            {
-                if (CanSwitch(_selectedTile, tile))
-                {
-                    SwitchTiles(_selectedTile, tile);
-                    _selectedTile.SetAsSelected(false);
-                    _selectedTile = null;
-                    StartCoroutine(ClearingLoop());
-                }
-                else
-                {
-                    _selectedTile.SetAsSelected(false);
-                    _selectedTile = null;
-                }
-
-            }
+            SwitchTiles(tile, nextTile);
+            StartCoroutine(ClearingLoop());
         }
     }
 
@@ -250,6 +214,10 @@ public class GameBoardMananger : MonoBehaviour
             var tileData2 = _tilesMatrix[index2.x, index2.y];
 
             if (WillMakeAMatchOnSwitch(tileData1, tileData2))
+            {
+                return true;
+            }
+            else if (WillMakeAMatchOnSwitch(tileData2, tileData1))
             {
                 return true;
             }
