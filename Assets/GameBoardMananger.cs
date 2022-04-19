@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class GameBoardMananger : MonoBehaviour
 {
+    [Header("Battle")]
+    [SerializeField] private BattleManager _battleManager;
+
     [Header("Board")]
     [SerializeField] private GameBoard _gameBoard;
 
@@ -112,6 +115,9 @@ public class GameBoardMananger : MonoBehaviour
     private IEnumerator ClearingLoop()
     {
         bool matchExisted = true;
+        int numberOfCombos = 0;
+        int numberOfTiles = 0; 
+
 
         while (matchExisted)
         {
@@ -121,6 +127,8 @@ public class GameBoardMananger : MonoBehaviour
                 matchExisted = false;
                 continue;
             }
+
+            numberOfTiles += GetNumberOfTilesInMatches();
 
             yield return new WaitForSeconds(0.4f);
 
@@ -135,10 +143,40 @@ public class GameBoardMananger : MonoBehaviour
             SpawnNewTiles();
 
             yield return new WaitForSeconds(1);
+            numberOfCombos++;
         }
 
+        _battleManager.RegisterCombo(numberOfCombos, numberOfTiles); // TODO calculate real numbers
         GameManager.IsBoardInputEnabled = true;
         Debug.Log("Finished loop");
+    }
+
+    private int GetNumberOfTilesInMatches()
+    {
+        int numberOfTiles = 0;
+        foreach (var match in _matches)
+        {
+            switch(match.MatchType)
+            {
+                case MatchType.FiveInARow:
+                    numberOfTiles += 5;
+                    break;
+                case MatchType.LShape:
+                case MatchType.TShape:
+                case MatchType.PlusShape:
+                case MatchType.FourInARow:
+                    numberOfTiles += 4;
+                    break;
+                case MatchType.ThreeInARow:
+                    numberOfTiles += 3;
+                    break;
+                default:
+                    Debug.LogError("Match wasn't handled correctly when counting number of tiles in all matches");
+                    break;
+            }
+        }
+
+        return numberOfTiles;
     }
 
     private void MakeTilesFallDown()
