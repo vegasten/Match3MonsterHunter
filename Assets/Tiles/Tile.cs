@@ -5,12 +5,10 @@ using UnityEngine.EventSystems;
 public class Tile : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
 {
     public event Action<Tile, Direction> OnTileDragged;
-    private Canvas _canvas;
     private Camera _uIcamera;
 
     private void Start()
     {
-        _canvas = FindObjectOfType<Canvas>();
         _uIcamera = GameObject.FindGameObjectWithTag("UICamera").GetComponent<Camera>();
     }
 
@@ -26,10 +24,6 @@ public class Tile : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPoin
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        Vector2 point;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(_canvas.transform as RectTransform, Input.mousePosition, _uIcamera, out point);
-        Debug.Log($"Clicked: {point} : {Input.mousePosition} : {transform.position} : {transform.localPosition} ");
-
         if (GameManager.IsBoardInputEnabled)
         {
             _isClickedActive = true;
@@ -52,7 +46,8 @@ public class Tile : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPoin
             {
                 _isClickedActive = false;
 
-                var direction = DeductDirection(transform.position, Input.mousePosition);
+                var tileScreenPoint = _uIcamera.WorldToScreenPoint(transform.position);
+                var direction = DeductDirection(tileScreenPoint, Input.mousePosition);
                 OnTileDragged?.Invoke(this, direction);
             }
         }
