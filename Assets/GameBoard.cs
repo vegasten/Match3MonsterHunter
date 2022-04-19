@@ -1,4 +1,6 @@
+using DG.Tweening;
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class GameBoard : MonoBehaviour
@@ -7,6 +9,9 @@ public class GameBoard : MonoBehaviour
 
     [SerializeField] private TileFactory _tileFactory;
     [SerializeField] private BoardFactory _boardFactory;
+
+    [Header("Effects")]
+    [SerializeField] private ParticleSystem _clearingParticleSystem;
 
     private TileSlot[,] _board;
     private int _numberOfColumns;
@@ -41,6 +46,11 @@ public class GameBoard : MonoBehaviour
         _board[index.x, index.y].Clear();
     }
 
+    private void PlayClearingParticleEffect()
+    {
+
+    }
+
     public void MoveTile(Vector2Int startIndex, Vector2Int targetIndex)
     {
         var tileTransform = _board.Get(startIndex).transform.GetChild(0);
@@ -72,10 +82,9 @@ public class GameBoard : MonoBehaviour
         tile2.SetTileIndex(index1);
 
         var rectTransform1 = tile1.GetComponent<RectTransform>();
-        rectTransform1.anchoredPosition = Vector2.zero;
-
+        rectTransform1.DOAnchorPos(Vector2.zero, 0.2f);
         var rectTransform2 = tile2.GetComponent<RectTransform>();
-        rectTransform2.anchoredPosition = Vector2.zero;
+        rectTransform2.DOAnchorPos(Vector2.zero, 0.2f);
     }
 
     public void InstantiateTile(GameObject tilePrefab, Vector2Int index)

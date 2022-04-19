@@ -5,6 +5,14 @@ using UnityEngine.EventSystems;
 public class Tile : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
 {
     public event Action<Tile, Direction> OnTileDragged;
+    private Canvas _canvas;
+    private Camera _uIcamera;
+
+    private void Start()
+    {
+        _canvas = FindObjectOfType<Canvas>();
+        _uIcamera = GameObject.FindGameObjectWithTag("UICamera").GetComponent<Camera>();
+    }
 
     public Vector2Int TileIndex { get; private set; }
 
@@ -18,6 +26,10 @@ public class Tile : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPoin
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        Vector2 point;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(_canvas.transform as RectTransform, Input.mousePosition, _uIcamera, out point);
+        Debug.Log($"Clicked: {point} : {Input.mousePosition} : {transform.position} : {transform.localPosition} ");
+
         if (GameManager.IsBoardInputEnabled)
         {
             _isClickedActive = true;

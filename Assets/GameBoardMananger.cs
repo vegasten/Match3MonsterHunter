@@ -122,6 +122,8 @@ public class GameBoardMananger : MonoBehaviour
                 continue;
             }
 
+            yield return new WaitForSeconds(0.4f);
+
             ClearMatches();
 
             yield return new WaitForSeconds(1);
