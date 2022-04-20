@@ -43,13 +43,27 @@ public class GameBoard : MonoBehaviour
 
     public void ClearTile(Vector2Int index)
     {
-        _board[index.x, index.y].Clear();
+        var position = _board[index.x, index.y].transform.position;
+        position.z = 0;
+
+        PlayClearingEffect(position);
+
+        _board[index.x, index.y].Clear();        
     }
 
-    private void PlayClearingParticleEffect()
+    private void PlayClearingEffect(Vector3 position)
     {
-
+        var particles = Instantiate(_clearingParticleSystem, position, Quaternion.identity);
+        particles.GetComponent<ParticleSystem>().Play();
+        StartCoroutine(ClearParticleSystemWhenFinished(particles));
     }
+
+    private IEnumerator ClearParticleSystemWhenFinished(ParticleSystem particles)
+    {
+        var length = particles.main.startLifetime.constant;
+        yield return new WaitForSeconds(length);
+        Destroy(particles.gameObject);
+    } 
 
     public void MoveTile(Vector2Int startIndex, Vector2Int targetIndex)
     {
