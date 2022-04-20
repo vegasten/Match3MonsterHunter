@@ -65,14 +65,16 @@ public class GameBoard : MonoBehaviour
         Destroy(particles.gameObject);
     } 
 
-    public void MoveTile(Vector2Int startIndex, Vector2Int targetIndex)
+    public void MoveTile(Vector2Int startIndex, Vector2Int targetIndex, float speed)
     {
         var tileTransform = _board.Get(startIndex).transform.GetChild(0);
         tileTransform.SetParent(_board.Get(targetIndex).transform);
         tileTransform.GetComponent<Tile>().SetTileIndex(targetIndex);
 
-        var rectTransform = tileTransform.GetComponent<RectTransform>(); // TODO animated by using this?
-        rectTransform.anchoredPosition = Vector2.zero;
+        var rectTransform = tileTransform.GetComponent<RectTransform>();
+        var distance = rectTransform.anchoredPosition.magnitude;
+
+        rectTransform.DOAnchorPos(Vector2.zero, distance / speed).SetEase(Ease.InOutSine); // TODO Tweek easing
     }
 
     public void SwapTiles(Tile tile1, Tile tile2)

@@ -202,7 +202,7 @@ public class GameBoardMananger : MonoBehaviour
                         currentTile.TileIndex = new Vector2Int(i, j + 1);
                         _tilesMatrix[i, j + 1] = currentTile;
 
-                        _gameBoard.MoveTile(new Vector2Int(i, j), new Vector2Int(i, j + 1));
+                        _gameBoard.MoveTile(new Vector2Int(i, j), new Vector2Int(i, j + 1), speed: 300f);
 
                         tileFell = true;
                     }
