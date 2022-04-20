@@ -133,6 +133,8 @@ public class GameBoardMananger : MonoBehaviour
             yield return new WaitForSeconds(0.4f);
 
             ClearMatches();
+            numberOfCombos++;
+            _battleManager.DisplayOngoingCombo(numberOfCombos);
 
             yield return new WaitForSeconds(1);
 
@@ -143,10 +145,11 @@ public class GameBoardMananger : MonoBehaviour
             SpawnNewTiles();
 
             yield return new WaitForSeconds(1);
-            numberOfCombos++;
+
         }
 
-        _battleManager.RegisterCombo(numberOfCombos, numberOfTiles); // TODO calculate real numbers
+        _battleManager.ClearComboText();
+        _battleManager.RegisterComboResult(numberOfCombos, numberOfTiles); // TODO calculate real numbers
         GameManager.IsBoardInputEnabled = true;
         Debug.Log("Finished loop");
     }
