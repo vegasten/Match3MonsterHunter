@@ -1529,6 +1529,8 @@ MonoBehaviour:
   _tileFactory: {fileID: 819651347}
   _boardFactory: {fileID: 819651346}
   _clearingParticleSystem: {fileID: 4928368790665765538, guid: 3d59752106a6ca04e8fbf1f7c0806b65, type: 3}
+  _tileMovementSpeed: 800
+  _tileMovementEase: 1
 --- !u!114 &1522611107
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1903,7 +1905,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

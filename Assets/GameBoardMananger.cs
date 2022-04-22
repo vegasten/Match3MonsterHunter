@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -71,7 +72,7 @@ public class GameBoardMananger : MonoBehaviour
         {
             for (int j = 0; j < _numberOfRows; j++)
             {
-                int tileTypeIndex = Random.Range(0, 5); // TODO Connect this and enum in some way                
+                int tileTypeIndex = UnityEngine.Random.Range(0, 5); // TODO Connect this and enum in some way                
                 TileData tileData = new TileData(i, j, (TileType)tileTypeIndex);
                 _tilesMatrix[i, j] = tileData;
             }
@@ -116,7 +117,7 @@ public class GameBoardMananger : MonoBehaviour
     {
         bool matchExisted = true;
         int numberOfCombos = 0;
-        int numberOfTiles = 0; 
+        int numberOfTiles = 0;
 
 
         while (matchExisted)
@@ -139,9 +140,6 @@ public class GameBoardMananger : MonoBehaviour
             yield return new WaitForSeconds(1);
 
             MakeTilesFallDown();
-
-            yield return new WaitForSeconds(1);
-
             SpawnNewTiles();
 
             yield return new WaitForSeconds(1);
@@ -159,7 +157,7 @@ public class GameBoardMananger : MonoBehaviour
         int numberOfTiles = 0;
         foreach (var match in _matches)
         {
-            switch(match.MatchType)
+            switch (match.MatchType)
             {
                 case MatchType.FiveInARow:
                     numberOfTiles += 5;
@@ -202,7 +200,7 @@ public class GameBoardMananger : MonoBehaviour
                         currentTile.TileIndex = new Vector2Int(i, j + 1);
                         _tilesMatrix[i, j + 1] = currentTile;
 
-                        _gameBoard.MoveTile(new Vector2Int(i, j), new Vector2Int(i, j + 1), speed: 300f);
+                        _gameBoard.MoveTile(new Vector2Int(i, j), new Vector2Int(i, j + 1));
 
                         tileFell = true;
                     }
@@ -226,14 +224,14 @@ public class GameBoardMananger : MonoBehaviour
 
             for (int k = 0; k < count; k++)
             {
-                var tileType = (TileType)(Random.Range(0, 5)); // TODO Connect this and enum in some way                
+                var tileType = (TileType)UnityEngine.Random.Range(0, Enum.GetNames(typeof(TileType)).Length);
 
                 var tileData = new TileData(i, k, tileType);
                 _tilesMatrix[i, k] = tileData;
                 tileData.IsUsed = false;
 
                 var tilePrefab = _tileFactory.GetTile(tileType);
-                _gameBoard.InstantiateTile(tilePrefab, new Vector2Int(i, k));
+                _gameBoard.InstantiateTile(tilePrefab, new Vector2Int(i, k), count + 1); // +1 is just a buffer, to make sure they start invisible
             }
         }
     }
@@ -243,7 +241,7 @@ public class GameBoardMananger : MonoBehaviour
         if (CanSwitch(tile, nextTile))
         {
             SwitchTiles(tile, nextTile);
-            GameManager.IsBoardInputEnabled = false;           
+            GameManager.IsBoardInputEnabled = false;
             StartCoroutine(ClearingLoop());
         }
     }

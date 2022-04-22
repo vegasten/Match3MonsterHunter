@@ -13,9 +13,15 @@ public class GameBoard : MonoBehaviour
     [Header("Effects")]
     [SerializeField] private ParticleSystem _clearingParticleSystem;
 
+    [Header("Tile movement")]
+    [SerializeField] private float _tileMovementSpeed = 500.0f;
+    [SerializeField] private Ease _tileMovementEase = Ease.Linear;
+
     private TileSlot[,] _board;
     private int _numberOfColumns;
     private int _numberOfRows;
+
+
 
     public void InitializeBoard(int numberOfColums, int numberOfRows)
     {
@@ -48,7 +54,7 @@ public class GameBoard : MonoBehaviour
 
         PlayClearingEffect(position);
 
-        _board[index.x, index.y].Clear();        
+        _board[index.x, index.y].Clear();
     }
 
     private void PlayClearingEffect(Vector3 position)
@@ -63,9 +69,9 @@ public class GameBoard : MonoBehaviour
         var length = particles.main.startLifetime.constant;
         yield return new WaitForSeconds(length);
         Destroy(particles.gameObject);
-    } 
+    }
 
-    public void MoveTile(Vector2Int startIndex, Vector2Int targetIndex, float speed)
+    public void MoveTile(Vector2Int startIndex, Vector2Int targetIndex)
     {
         var tileTransform = _board.Get(startIndex).transform.GetChild(0);
         tileTransform.SetParent(_board.Get(targetIndex).transform);
@@ -74,7 +80,7 @@ public class GameBoard : MonoBehaviour
         var rectTransform = tileTransform.GetComponent<RectTransform>();
         var distance = rectTransform.anchoredPosition.magnitude;
 
-        rectTransform.DOAnchorPos(Vector2.zero, distance / speed).SetEase(Ease.InOutSine); // TODO Tweek easing
+        rectTransform.DOAnchorPos(Vector2.zero, distance / _tileMovementSpeed).SetEase(_tileMovementEase);
     }
 
     public void SwapTiles(Tile tile1, Tile tile2)
@@ -103,9 +109,17 @@ public class GameBoard : MonoBehaviour
         rectTransform2.DOAnchorPos(Vector2.zero, 0.2f);
     }
 
-    public void InstantiateTile(GameObject tilePrefab, Vector2Int index)
+    public void InstantiateTile(GameObject tilePrefab, Vector2Int index, int numberOfSpawnedInColumn)
     {
         var tile = Instantiate(tilePrefab, _board.Get(index).transform).GetComponent<Tile>();
+        var rectTransform = tile.GetComponent<RectTransform>();
+
+        var targetPosition = rectTransform.position;
+        rectTransform.anchoredPosition = new Vector3(0, 81.6f * numberOfSpawnedInColumn, 0); // TODO 81.6 here is the distance between tiles (tile size + spacing)
+
+        var distance = rectTransform.anchoredPosition.magnitude;
+        rectTransform.DOAnchorPos(Vector2.zero, distance / _tileMovementSpeed).SetEase(_tileMovementEase);
+
         tile.SetTileIndex(index);
         tile.OnTileDragged += TileDragged;
     }
