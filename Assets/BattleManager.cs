@@ -17,6 +17,7 @@ public class BattleManager : MonoBehaviour
     private MonsterData _enemyMonsterData;
 
     private Players _attacker;
+    private bool _batteHasEnded = false;
 
     private void Start()
     {
@@ -33,6 +34,7 @@ public class BattleManager : MonoBehaviour
         _presenter.SetHealthBar(1, Players.Friendly);
         _presenter.SetHealthBar(1, Players.Enemy);
 
+        _presenter.DisplayActiveAttacer(_attacker);
         _boardManager.StartTurn(_attacker);
     }
 
@@ -50,8 +52,8 @@ public class BattleManager : MonoBehaviour
 
             if (_enemyMonsterData.Life <= 0)
             {
-                Debug.Log("Enemy is dead!");
                 _presenter.SetVictoryText();
+                _batteHasEnded = true;
             }
         }
         else
@@ -64,12 +66,15 @@ public class BattleManager : MonoBehaviour
 
             if (_friendlyMonsterData.Life <= 0)
             {
-                Debug.Log("Enemy is dead!");
                 _presenter.SetDefeatText();
+                _batteHasEnded = true;
             }
         }
 
-        StartCoroutine(StartNextTurnAfterDelay(2.0f));
+        if (!_batteHasEnded)
+        {
+            StartCoroutine(StartNextTurnAfterDelay(2.0f));
+        }
     }
 
     private IEnumerator StartNextTurnAfterDelay(float delay)
@@ -81,6 +86,7 @@ public class BattleManager : MonoBehaviour
     private void StartNextTurn()
     {
         _attacker = _attacker == Players.Friendly ? Players.Enemy : Players.Friendly;
+        _presenter.DisplayActiveAttacer(_attacker);
         _boardManager.StartTurn(_attacker);
     }
 

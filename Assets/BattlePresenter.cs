@@ -7,9 +7,11 @@ public class BattlePresenter : MonoBehaviour
 {
     [Header("Player")]
     [SerializeField] private Image _playerHealthBar;
+    [SerializeField] private Image _playerAttackerIndicator;
 
     [Header("Enemy")]
     [SerializeField] private Image _enemyHealthBar;
+    [SerializeField] private Image _enemyAttackerIndicator;
 
     [Header("Combo Text")]
     [SerializeField] private TMP_Text _comboText;
@@ -81,5 +83,17 @@ public class BattlePresenter : MonoBehaviour
         }
     }
 
-    
+    public void DisplayActiveAttacer(Players player)
+    {
+        if (player == Players.Friendly)
+        {
+            _playerAttackerIndicator.gameObject.SetActive(true);
+            _enemyAttackerIndicator.gameObject.SetActive(false);
+        }
+        else
+        {
+            _playerAttackerIndicator.gameObject.SetActive(false);
+            _enemyAttackerIndicator.gameObject.SetActive(true);
+        }
+    }
 }
