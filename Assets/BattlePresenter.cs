@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -34,7 +35,7 @@ public class BattlePresenter : MonoBehaviour
 
         switch (player)
         {
-            case Players.Player:
+            case Players.Friendly:
                 _playerHealthBar.rectTransform.localScale = new Vector3(percent, 1, 1);
                 break;
             case Players.Enemy:
@@ -49,6 +50,11 @@ public class BattlePresenter : MonoBehaviour
     public void SetVictoryText()
     {
         _comboText.text = "Victory!";
+    }
+
+    public void SetDefeatText()
+    {
+        _comboText.text = "Defeat...";
     }
 
     public void ClearComboText()
@@ -74,4 +80,6 @@ public class BattlePresenter : MonoBehaviour
             _comboText.text = "";
         }
     }
+
+    
 }

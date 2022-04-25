@@ -20,8 +20,11 @@ public class GameBoard : MonoBehaviour
     private TileSlot[,] _board;
     private int _numberOfColumns;
     private int _numberOfRows;
-
-
+    
+    public Tile GetTileFromIndex(Vector2Int index)
+    {
+        return _board.Get(index).GetComponentInChildren<Tile>();
+    }
 
     public void InitializeBoard(int numberOfColums, int numberOfRows)
     {
@@ -53,7 +56,12 @@ public class GameBoard : MonoBehaviour
         position.z = 0;
 
         PlayClearingEffect(position);
+        StartCoroutine(ClearTileAfterDelay(index, 0.5f));
+    }
 
+    private IEnumerator ClearTileAfterDelay(Vector2Int index, float delay)
+    {
+        yield return new WaitForSeconds(delay);
         _board[index.x, index.y].Clear();
     }
 

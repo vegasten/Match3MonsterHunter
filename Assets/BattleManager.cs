@@ -10,8 +10,13 @@ public class BattleManager : MonoBehaviour
     [Header("Battle Presenter")]
     [SerializeField] private BattlePresenter _presenter;
 
-    private PlayerData _friendlyMonsterData;
-    private PlayerData _enemyMonsterData;
+    [Header("Board")]
+    [SerializeField] private GameBoardManager _boardManager;
+
+    private MonsterData _friendlyMonsterData;
+    private MonsterData _enemyMonsterData;
+
+    private Players _attacker;
 
     private void Start()
     {
@@ -20,34 +25,63 @@ public class BattleManager : MonoBehaviour
 
     public void StartBattle()
     {
-        _friendlyMonsterData = new PlayerData(100);
-        _enemyMonsterData = new PlayerData(100);
+        _attacker = Players.Friendly;
 
-        _presenter.SetHealthBar(1, Players.Player);
+        _friendlyMonsterData = new MonsterData(100);
+        _enemyMonsterData = new MonsterData(100);
+
+        _presenter.SetHealthBar(1, Players.Friendly);
         _presenter.SetHealthBar(1, Players.Enemy);
+
+        _boardManager.StartTurn(_attacker);
     }
 
     public void RegisterComboResult(int numberOfCombos, int numberOfTiles)
     {
         int damage = CalculateDamage(numberOfCombos, numberOfTiles);
-        _enemyMonsterData.TakeDamage(damage);
 
-        if (numberOfCombos <= 2)
+        if (_attacker == Players.Friendly)
         {
-            StartCoroutine(AnimateFriendlyAttack());
+            _enemyMonsterData.TakeDamage(damage);
+            if (numberOfCombos <= 2)
+                StartCoroutine(AnimateFriendlyAttack());
+            else
+                StartCoroutine(AnimateFriendlyBigAttack());
+
+            if (_enemyMonsterData.Life <= 0)
+            {
+                Debug.Log("Enemy is dead!");
+                _presenter.SetVictoryText();
+            }
         }
         else
         {
-            StartCoroutine(AnimateFriendlyBigAttack());
+            _friendlyMonsterData.TakeDamage(damage);
+            if (numberOfCombos <= 2)
+                StartCoroutine(AnimateEnemyAttack());
+            else
+                StartCoroutine(AnimateEnemyBigAttack());
+
+            if (_friendlyMonsterData.Life <= 0)
+            {
+                Debug.Log("Enemy is dead!");
+                _presenter.SetDefeatText();
+            }
         }
 
-        Debug.Log($"Doing {damage} points of damage to the enemy");
+        StartCoroutine(StartNextTurnAfterDelay(2.0f));
+    }
 
-        if (_enemyMonsterData.Life <= 0)
-        {
-            Debug.Log("Enemy is dead!");
-            _presenter.SetVictoryText();
-        }
+    private IEnumerator StartNextTurnAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        StartNextTurn();
+    }
+
+    private void StartNextTurn()
+    {
+        _attacker = _attacker == Players.Friendly ? Players.Enemy : Players.Friendly;
+        _boardManager.StartTurn(_attacker);
     }
 
     public void ClearComboText()
@@ -89,7 +123,7 @@ public class BattleManager : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
         _friendlyBattleMonster.TriggerHit();
         yield return new WaitForSeconds(0.5f);
-        _presenter.SetHealthBar(_friendlyMonsterData.GetPercentLife(), Players.Enemy);
+        _presenter.SetHealthBar(_friendlyMonsterData.GetPercentLife(), Players.Friendly);
     }
 
     private IEnumerator AnimateEnemyBigAttack()
@@ -98,6 +132,6 @@ public class BattleManager : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
         _friendlyBattleMonster.TriggerHit();
         yield return new WaitForSeconds(0.5f);
-        _presenter.SetHealthBar(_friendlyMonsterData.GetPercentLife(), Players.Enemy);
+        _presenter.SetHealthBar(_friendlyMonsterData.GetPercentLife(), Players.Friendly);
     }
 }
