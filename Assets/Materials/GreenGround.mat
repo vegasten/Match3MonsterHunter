@@ -126,7 +126,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 0.17888924, g: 0.4245283, b: 0.2328092, a: 1}
     - _Color: {r: 0.48279336, g: 0.745283, b: 0.4950736, a: 1}
-    - _Diffuse: {r: 0.13, g: 0.32, b: 0.3, a: 0}
+    - _Diffuse: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _Specular: {r: 1, g: 1, b: 1, a: 0}
