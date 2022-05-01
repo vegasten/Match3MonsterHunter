@@ -18,4 +18,9 @@ public class BattleMonster : MonoBehaviour
     {
         _animator.SetTrigger("HitTrigger");
     }
+
+    public void TriggerDeath()
+    {
+        _animator.SetTrigger("DeathTrigger");
+    }
 }

@@ -54,6 +54,7 @@ public class BattleManager : MonoBehaviour
             {
                 _presenter.SetVictoryText();
                 _batteHasEnded = true;
+                _enemyBattleMonster.TriggerDeath();
             }
         }
         else
@@ -68,6 +69,7 @@ public class BattleManager : MonoBehaviour
             {
                 _presenter.SetDefeatText();
                 _batteHasEnded = true;
+                _friendlyBattleMonster.TriggerDeath();
             }
         }
 
