@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67a2ca13d338ec744b632d8488aabed8, type: 3}
+  m_Name: RedSlime
+  m_EditorClassIdentifier: 
+  Health: 100
+  AttackPower: 1
+  BattleGameObject: {fileID: 5975615184116935340, guid: e808edd9cc100344ea715566756dd401, type: 3}
+  StorageImage: {fileID: 21300000, guid: a57b11703f6e64d42bff035000bc820b, type: 3}
