@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class BattleManager : MonoBehaviour
 {
-    [Header("Temporary monster")]
-    [SerializeField] private BattleMonster _friendlyBattleMonster;
-    [SerializeField] private BattleMonster _enemyBattleMonster;
+    [Header("Battle spots")]
+    [SerializeField] private Transform _friendlyBattleSpot;
+    [SerializeField] private Transform _enemyBattleSpot;
 
     [Header("Battle Presenter")]
     [SerializeField] private BattlePresenter _presenter;
@@ -13,14 +13,20 @@ public class BattleManager : MonoBehaviour
     [Header("Board")]
     [SerializeField] private GameBoardManager _boardManager;
 
-    private MonsterData _friendlyMonsterData;
-    private MonsterData _enemyMonsterData;
+    private MonsterBattleState _friendlyMonsterData;
+    private MonsterBattleState _enemyMonsterData;
+    private BattleMonster _friendlyBattleMonster;
+    private BattleMonster _enemyBattleMonster;
+
+    private PersistantState _persistantState;
 
     private Players _attacker;
     private bool _batteHasEnded = false;
 
     private void Start()
     {
+        _persistantState = GameObject.FindObjectOfType<PersistantState>();
+
         StartBattle();
     }
 
@@ -28,8 +34,14 @@ public class BattleManager : MonoBehaviour
     {
         _attacker = Players.Friendly;
 
-        _friendlyMonsterData = new MonsterData(100);
-        _enemyMonsterData = new MonsterData(100);
+        _friendlyMonsterData = new MonsterBattleState(_persistantState.PlayerMonster);
+        _enemyMonsterData = new MonsterBattleState(_persistantState.EnemyMonster);
+
+        var friendlyMonsterPrefab = _persistantState.PlayerMonster.BattlePrefab;
+        var enemyMonsterPrefab = _persistantState.EnemyMonster.BattlePrefab;
+
+        _friendlyBattleMonster = Instantiate(friendlyMonsterPrefab, _friendlyBattleSpot).GetComponent<BattleMonster>();
+        _enemyBattleMonster = Instantiate(enemyMonsterPrefab, _enemyBattleSpot).GetComponent<BattleMonster>();
 
         _presenter.SetHealthBar(1, Players.Friendly);
         _presenter.SetHealthBar(1, Players.Enemy);
@@ -52,7 +64,7 @@ public class BattleManager : MonoBehaviour
 
             if (_enemyMonsterData.Life <= 0)
             {
-                _presenter.SetVictoryText();
+                _presenter.EndBattleWithVictory();
                 _batteHasEnded = true;
                 _enemyBattleMonster.TriggerDeath();
             }
@@ -67,7 +79,7 @@ public class BattleManager : MonoBehaviour
 
             if (_friendlyMonsterData.Life <= 0)
             {
-                _presenter.SetDefeatText();
+                _presenter.EndBattleWithDefeat();
                 _batteHasEnded = true;
                 _friendlyBattleMonster.TriggerDeath();
             }

@@ -4,7 +4,7 @@ using UnityEngine;
 public class MonsterScriptableObject : ScriptableObject
 {
     public int Health;
-    public int AttackPower;
+    public int AttackPower;    
 
     public GameObject BattleGameObject;
     public Sprite StorageImage;    

@@ -15,25 +15,24 @@ namespace Home
         public int Index { get; private set; }
         public bool HasMonster { get; private set; }
 
-        private MonsterScriptableObject _monsterData;
-
         private Color _visible = new Color(1, 1, 1, 1);
         private Color _invisible = new Color(1, 1, 1, 0);
 
-        public void SetMonster(MonsterScriptableObject monsterData)
+        public void SetMonster(MonsterStorageData monsterData)
         {
-            _monsterData = monsterData;
             _monsterSprite.color = _visible;
             _monsterSprite.sprite = monsterData.StorageImage;
             HasMonster = true;
+            _checkMark.SetActive(monsterData.Active);
+            
         }
 
         public void RemoveMonster()
         {
-            _monsterData = null;
             _monsterSprite.color = _invisible;
             _monsterSprite.sprite = null;
             HasMonster = false;
+            _checkMark.SetActive(false);
         }
 
         public void SetAsActiveMonster(bool isActive)

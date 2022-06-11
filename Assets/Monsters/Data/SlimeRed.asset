@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 67a2ca13d338ec744b632d8488aabed8, type: 3}
-  m_Name: YellowSlime
+  m_Name: SlimeRed
   m_EditorClassIdentifier: 
   Health: 100
   AttackPower: 1
-  BattleGameObject: {fileID: 6823342607459151813, guid: 3c5d42b29b1561c42aa219d16dd06fab, type: 3}
-  StorageImage: {fileID: 21300000, guid: 1f45bfe40007ab348964ba019e8b5e15, type: 3}
+  BattleGameObject: {fileID: 5975615184116935340, guid: e808edd9cc100344ea715566756dd401, type: 3}
+  StorageImage: {fileID: 21300000, guid: a57b11703f6e64d42bff035000bc820b, type: 3}

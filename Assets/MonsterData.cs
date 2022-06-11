@@ -1,25 +1,15 @@
+using UnityEngine;
 
 public class MonsterData
 {
-    public int Life { get; private set; }
-    public int MaxLife { get; }
+    public MonsterListEnum MonsterType;
 
-    public MonsterData(int life)
-    {
-        Life = life;
-        MaxLife = life;
-    }
+    public int Health;
+    public int AttackPower;
+    public int Level;
 
-    public void TakeDamage(int damage)
-    {
-        Life -= damage;
-
-        if (Life < 0)
-            Life = 0;
-    }
-
-    public float GetPercentLife()
-    {
-        return (float)Life / (float)MaxLife;
-    }
+    public bool Active;
+    //public GameObject BattleGameObject;
+    //public Sprite StorageImage;
 }
+

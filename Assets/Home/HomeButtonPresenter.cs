@@ -25,8 +25,6 @@ namespace Home
         private void onBattleButtonClicked()
         {
             OnBattleButtonClicked?.Invoke();
-
-            SceneManager.LoadScene("BattleScene");
         }
 
         private void onStorageButtonClicked()

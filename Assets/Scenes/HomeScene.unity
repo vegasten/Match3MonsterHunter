@@ -600,6 +600,9 @@ GameObject:
   - component: {fileID: 600924288}
   - component: {fileID: 600924290}
   - component: {fileID: 600924291}
+  - component: {fileID: 600924293}
+  - component: {fileID: 600924292}
+  - component: {fileID: 600924294}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -649,6 +652,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _buttonPresenter: {fileID: 600924288}
+  _battleController: {fileID: 600924294}
   _mainScreen: {fileID: 1250749469}
   _storageScreen: {fileID: 434549977}
 --- !u!114 &600924291
@@ -666,8 +670,52 @@ MonoBehaviour:
   _storageSlotsParent: {fileID: 554825259}
   _storageSlotPrefab: {fileID: 3735358408854030490, guid: 97b243499f2e00042a9ecdbb81fba844, type: 3}
   _numberOfStorageSlots: 15
-  _yellowSlime: {fileID: 11400000, guid: c5be5619c12690c4cb5420f068b64f50, type: 2}
-  _greenSlime: {fileID: 11400000, guid: a3ac4d3418e6ff840a45ffb045d54f2a, type: 2}
+--- !u!114 &600924292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 600924287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4973f8416016302448feaf1c5fdb6c38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _slimeGreen: {fileID: 11400000, guid: a3ac4d3418e6ff840a45ffb045d54f2a, type: 2}
+  _slimeBlue: {fileID: 11400000, guid: 8ffe37fb3e7fb6c4ba2a5dce645a2227, type: 2}
+  _slimeRed: {fileID: 11400000, guid: 77f369e93007a3b48b5e8a62609d6e63, type: 2}
+  _slimeYellow: {fileID: 11400000, guid: c5be5619c12690c4cb5420f068b64f50, type: 2}
+  _slimePurple: {fileID: 11400000, guid: 1d56ef457abf0434dbb17eee1cdf9149, type: 2}
+--- !u!114 &600924293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 600924287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa859400187a6774a95ab8951c45d929, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _storagePresenter: {fileID: 600924291}
+  _monsterList: {fileID: 600924292}
+--- !u!114 &600924294
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 600924287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ea1912304c536445a57c61e4457cbe3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _monsterList: {fileID: 600924292}
+  _persistantState: {fileID: 1218614027}
+  _storageController: {fileID: 600924293}
 --- !u!1 &734262261
 GameObject:
   m_ObjectHideFlags: 0
@@ -1105,6 +1153,49 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1092875161}
   m_CullTransparentMesh: 1
+--- !u!1 &1218614025
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1218614026}
+  - component: {fileID: 1218614027}
+  m_Layer: 0
+  m_Name: PersistantState
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1218614026
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1218614025}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.050333, y: 9.998169, z: 3.4500651}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1218614027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1218614025}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd2db5de6e194874a939f0539bff701d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1250749469
 GameObject:
   m_ObjectHideFlags: 0

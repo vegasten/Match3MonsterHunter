@@ -1,6 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class BattlePresenter : MonoBehaviour
@@ -16,12 +17,31 @@ public class BattlePresenter : MonoBehaviour
     [Header("Combo Text")]
     [SerializeField] private TMP_Text _comboText;
 
+    [Header("End battle modal")]
+    [SerializeField] private GameObject _endBattleModal;
+    [SerializeField] private GameObject _victoryScreen;
+    [SerializeField] private GameObject _defeatScreen;
+    [SerializeField] private Button _goBackVictoryButton;
+    [SerializeField] private Button _goBackDefeatButton;
+
     private void Start()
     {
         _comboText.text = "";
 
         _playerHealthBar.rectTransform.localScale = new Vector3(0.5f, 1, 1);
         _enemyHealthBar.rectTransform.localScale = new Vector3(0.2f, 1, 1);
+
+        _goBackVictoryButton.onClick.AddListener(GoBackAfterEndBattle);
+        _goBackDefeatButton.onClick.AddListener(GoBackAfterEndBattle);
+
+        _victoryScreen.SetActive(false);
+        _defeatScreen.SetActive(false);
+        _endBattleModal.SetActive(false);
+    }
+
+    private void GoBackAfterEndBattle()
+    {
+        SceneManager.LoadScene("HomeScene");
     }
 
     public void SetHealthBar(float percent, Players player)
@@ -49,14 +69,18 @@ public class BattlePresenter : MonoBehaviour
         }
     }
 
-    public void SetVictoryText()
+    public void EndBattleWithVictory()
     {
-        _comboText.text = "Victory!";
+        _comboText.text = "";
+        _endBattleModal.SetActive(true);
+        _victoryScreen.SetActive(true);
     }
 
-    public void SetDefeatText()
+    public void EndBattleWithDefeat()
     {
-        _comboText.text = "Defeat...";
+        _comboText.text = "";
+        _endBattleModal.SetActive(true);
+        _defeatScreen.SetActive(true);
     }
 
     public void ClearComboText()

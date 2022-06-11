@@ -14,6 +14,9 @@ namespace Home
         [Header("Presenters")]
         [SerializeField] private HomeButtonPresenter _buttonPresenter;
 
+        [Header("Controllers")]
+        [SerializeField] private HomeBattleController _battleController;
+
         [Header("Screens")]
         [SerializeField] private GameObject _mainScreen;
         [SerializeField] private GameObject _storageScreen;
@@ -24,8 +27,14 @@ namespace Home
         {
             _buttonPresenter.OnStorageButtonClicked += () => ShowScreen(Screen.Storage);
             _buttonPresenter.OnBackButtonClicked += GoBack;
+            _buttonPresenter.OnBattleButtonClicked += StartBattle;
 
             ShowScreen(Screen.Main);
+        }
+
+        private void StartBattle()
+        {
+            _battleController.StartBattle();
         }
 
         private void GoBack()

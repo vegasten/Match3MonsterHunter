@@ -1,22 +1,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Home {
+namespace Home
+{
     public class StoragePresenter : MonoBehaviour
     {
         [SerializeField] Transform _storageSlotsParent;
         [SerializeField] StorageSlot _storageSlotPrefab;
         [SerializeField] int _numberOfStorageSlots = 12;
 
-
-        [Header("test")]
-        [SerializeField] MonsterScriptableObject _yellowSlime;
-        [SerializeField] MonsterScriptableObject _greenSlime;
-
         private List<StorageSlot> _storageSlots = new List<StorageSlot>();
-        private int _activeStorageSlotIndex = 0;
+        private int _activeStorageSlotIndex = 0; // TODO, The presenter should probably not have control of this state
 
-        private void Start()
+        private void Awake()
         {
             for (int i = 0; i < _numberOfStorageSlots; i++)
             {
@@ -25,10 +21,28 @@ namespace Home {
                 storageSlot.SetIndex(i);
                 storageSlot.OnStorageSlotClicked += OnStorageSlotClicked;
             }
+        }
 
-            _storageSlots[0].SetMonster(_yellowSlime);
-            _storageSlots[0].SetAsActiveMonster(true);
-            _storageSlots[1].SetMonster(_greenSlime);
+        public int GetActiveMonsterIndex()
+        {
+            return _activeStorageSlotIndex;
+        }
+
+        public void SetStorageMonsters(List<MonsterStorageData> monsters)
+        {
+            for (int i = 0; i < monsters.Count; i++)
+            {
+                var slot = _storageSlots[i];
+                var monster = monsters[i];
+
+                slot.SetMonster(monster);
+                slot.SetIndex(i);
+
+                if (monster.Active)
+                {
+                    _activeStorageSlotIndex = i;
+                }
+            }
         }
 
         private void OnStorageSlotClicked(int index)
