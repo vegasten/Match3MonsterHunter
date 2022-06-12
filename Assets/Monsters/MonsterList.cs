@@ -21,7 +21,7 @@ public class MonsterList : MonoBehaviour
     [SerializeField] private MonsterScriptableObject _slimeYellow;
     [SerializeField] private MonsterScriptableObject _slimePurple;
 
-    public MonsterScriptableObject GetMonsterData(MonsterListEnum monster)
+    private MonsterScriptableObject GetMonsterData(MonsterListEnum monster)
     {
         MonsterScriptableObject targetMonster = null;
 
@@ -79,7 +79,7 @@ public class MonsterList : MonoBehaviour
         return battleData;
     }
 
-    public MonsterListEnum GetRandomMonsterUniform()
+    private MonsterListEnum GetRandomMonsterUniform()
     {
         int randomNumber = UnityEngine.Random.Range(0, NUMBER_OF_MONSTERS);
         return (MonsterListEnum)randomNumber;

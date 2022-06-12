@@ -6,4 +6,5 @@ public class MonsterDataSerializeable
     public int Health;
     public int AttackPower;
     public int Level;
+    public bool Active;
 }

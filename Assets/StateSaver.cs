@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using UnityEngine;
 
 public class StateSaver
 {
@@ -20,35 +23,81 @@ public class StateSaver
 
     public void SaveMonsters(List<MonsterData> monsters)
     {
+        string fileDestination = Application.persistentDataPath + "/save.dat";
+        FileStream file;
 
+        if (File.Exists(fileDestination))
+        {
+            file = File.OpenWrite(fileDestination);
+        }
+        else
+        {
+            file = File.Create(fileDestination);
+        }
+
+        var serializableList = new List<MonsterDataSerializeable>();
+
+        foreach (var monster in monsters)
+        {
+            serializableList.Add(GetSerializableData(monster));
+        }
+
+        BinaryFormatter bf = new BinaryFormatter();
+        bf.Serialize(file, serializableList.ToArray());
+        file.Close();
     }
 
     public List<MonsterData> LoadMonsters()
     {
-        var monsters = new List<MonsterData>();
+        string fileDestination = Application.persistentDataPath + "/save.dat";
+        FileStream file;
 
-        // TODO Just for testing
-        var slimeYellow = new MonsterData
+        var monstersData = new List<MonsterData>();
+
+        if (File.Exists(fileDestination))
         {
-            MonsterType = MonsterListEnum.SlimeYellow,
-            Health = 100,
-            AttackPower = 1,
-            Level = 2,
-            Active = false
-        };
-
-        var slimeRed = new MonsterData
+            file = File.OpenRead(fileDestination);
+        }
+        else
         {
-            MonsterType = MonsterListEnum.SlimeRed,
-            Health = 100,
-            AttackPower = 1,
-            Level = 3,
-            Active = true
+            Debug.LogWarning("Could not find monsters save file");
+            return monstersData;
+        }
+
+        BinaryFormatter bf = new BinaryFormatter();
+        var monstersSerializableData = (MonsterDataSerializeable[])bf.Deserialize(file);
+        file.Close();
+
+        foreach (var data in monstersSerializableData)
+        {
+            monstersData.Add(GetMonsterData(data));
+        }
+
+        return monstersData;
+    }
+
+    private MonsterDataSerializeable GetSerializableData(MonsterData data)
+    {
+        return new MonsterDataSerializeable()
+        {
+            MonsterIdentifier = data.MonsterType.ToString(),
+            Health = data.Health,
+            AttackPower = data.AttackPower,
+            Level = data.Level,
+            Active = data.Active
         };
+    }
 
-        monsters.Add(slimeYellow);
-        monsters.Add(slimeRed);
+    private MonsterData GetMonsterData(MonsterDataSerializeable data)
+    {
+        return new MonsterData()
+        {
+            MonsterType = (MonsterListEnum)System.Enum.Parse(typeof(MonsterListEnum), data.MonsterIdentifier),
+            Health = data.Health,
+            AttackPower = data.AttackPower,
+            Level = data.Level,
+            Active = data.Active
 
-        return monsters;
+        };
     }
 }

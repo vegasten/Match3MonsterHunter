@@ -1,12 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public static class TileSlotMatrixExtensions
+namespace Battle
 {
-    public static TileSlot Get(this TileSlot[,] slotMatrix, Vector2Int index)
+    public static class TileSlotMatrixExtensions
     {
-        return slotMatrix[index.x, index.y];
-    }
+        public static TileSlot Get(this TileSlot[,] slotMatrix, Vector2Int index)
+        {
+            return slotMatrix[index.x, index.y];
+        }
 
+    }
 }

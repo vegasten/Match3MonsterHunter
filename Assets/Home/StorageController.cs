@@ -9,12 +9,7 @@ namespace Home
         [SerializeField] private MonsterList _monsterList;
 
         private List<MonsterData> _monsters;
-
-        public MonsterData GetActiveMonster()
-        {
-            var index = _storagePresenter.GetActiveMonsterIndex();
-            return _monsters[index];
-        }
+        private int _activeMonsterIndex;
 
         private void Start()
         {
@@ -22,7 +17,42 @@ namespace Home
             if (_monsters.Count == 0)
                 Debug.LogWarning("Loaded zero monsters");
 
+            for (int i = 0; i < _monsters.Count; i++)
+            {
+                if (_monsters[i].Active)
+                {
+                    _activeMonsterIndex = i;
+                    break;
+                }
+            }
+
             _storagePresenter.SetStorageMonsters(GetStorageData());
+            _storagePresenter.OnNewActiveMonsterSet += SetNewActiveMonster;
+
+        }
+        public MonsterData GetActiveMonster()
+        {
+            return _monsters[_activeMonsterIndex];
+        }
+
+        private void SaveMonstersToFile()
+        {
+            StateSaver.Instance.SaveMonsters(_monsters);
+        }
+
+        private void SetNewActiveMonster(int index)
+        {
+            if (_activeMonsterIndex == index)
+                return;
+
+            _monsters[_activeMonsterIndex].Active = false;
+            _storagePresenter.SetAsActiveMonster(_activeMonsterIndex, false);
+            _monsters[index].Active = true;
+            _storagePresenter.SetAsActiveMonster(index, true);
+
+            _activeMonsterIndex = index;
+
+            SaveMonstersToFile();
         }
 
         private List<MonsterStorageData> GetStorageData()
