@@ -4,11 +4,29 @@ namespace Home
 {
     public class HomeUIController : MonoBehaviour
     {
-        private enum Screen
+        private enum Canvases
         {
             Main,
-            Storage
+            Summoning
         }
+
+        private enum MainScreens
+        {
+            Main,
+            Storage,
+            External
+        };
+
+        private enum SummoningScreens
+        {
+            Summoning
+        }
+
+        private enum CamType
+        {
+            Main,
+            Summoning
+        };
 
         [Header("Presenters")]
         [SerializeField] private HomeButtonPresenter _buttonPresenter;
@@ -16,19 +34,33 @@ namespace Home
         [Header("Controllers")]
         [SerializeField] private HomeBattleController _battleController;
 
+        [Header("Cameras")]
+        [SerializeField] private Camera _mainCamera;
+        [SerializeField] private Camera _summoningCamera;
+
+        [Header("Canvas")]
+        [SerializeField] private GameObject _mainCanvas;
+        [SerializeField] private GameObject _summoningCanvas;
+
         [Header("Screens")]
         [SerializeField] private GameObject _mainScreen;
         [SerializeField] private GameObject _storageScreen;
+        [SerializeField] private GameObject _summoningScreen;
 
-        private Screen _activeScreen = Screen.Main;
+        private CamType _activeCamera;
+        private Canvases _activeCanvas;
+        private MainScreens _activeScreen = MainScreens.Main;
 
         private void Start()
         {
-            _buttonPresenter.OnStorageButtonClicked += () => ShowScreen(Screen.Storage);
+            _buttonPresenter.OnStorageButtonClicked += () => ShowScreen(MainScreens.Storage);
             _buttonPresenter.OnBackButtonClicked += GoBack;
             _buttonPresenter.OnBattleButtonClicked += StartBattle;
+            _buttonPresenter.OnSummonButtonClicked += SummonMonster;
 
-            ShowScreen(Screen.Main);
+            SetCamera(CamType.Main);
+            ShowCanvas(Canvases.Main);
+            ShowScreen(MainScreens.Main);
         }
 
         private void StartBattle()
@@ -38,18 +70,58 @@ namespace Home
 
         private void GoBack()
         {
-            if (_activeScreen != Screen.Main)
+            if (_activeCamera != CamType.Main)
             {
-                ShowScreen(Screen.Main);
+                SetCamera(CamType.Main);
+            }
+
+            if (_activeCanvas != Canvases.Main)
+            {
+                ShowCanvas(Canvases.Main);
+            }
+
+            if (_activeScreen != MainScreens.Main)
+            {
+                ShowScreen(MainScreens.Main);
             }
         }
 
-        private void ShowScreen(Screen screen)
+        private void SummonMonster()
         {
-            _mainScreen.SetActive(screen == Screen.Main);
-            _storageScreen.SetActive(screen == Screen.Storage);
+            SetCamera(CamType.Summoning);
+            ShowCanvas(Canvases.Summoning);
+            ShowScreen(SummoningScreens.Summoning);
+        }
+
+        private void SetCamera(CamType camType)
+        {
+            _mainCamera.gameObject.SetActive(camType == CamType.Main);
+            _summoningCamera.gameObject.SetActive(camType == CamType.Summoning);
+
+            _activeCamera = camType;
+        }
+
+        private void ShowCanvas(Canvases canvas)
+        {
+            _mainCanvas.SetActive(canvas == Canvases.Main);
+            _summoningCanvas.SetActive(canvas == Canvases.Summoning);
+
+            _activeCanvas = canvas;
+        }
+
+        private void ShowScreen(MainScreens screen)
+        {
+            _mainScreen.SetActive(screen == MainScreens.Main);
+            _storageScreen.SetActive(screen == MainScreens.Storage);
 
             _activeScreen = screen;
+        }
+
+        private void ShowScreen(SummoningScreens screen)
+        {
+            _summoningScreen.SetActive(screen == SummoningScreens.Summoning);
+
+            _activeScreen = MainScreens.External;
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,6 +14,10 @@ namespace Home
 
         private void Start()
         {
+            // DEBUG
+            ResetToYellowSlime();
+            // DEBUG
+
             _monsters = StateSaver.Instance.LoadMonsters();
             if (_monsters.Count == 0)
                 Debug.LogWarning("Loaded zero monsters");
@@ -30,6 +35,32 @@ namespace Home
             _storagePresenter.OnNewActiveMonsterSet += SetNewActiveMonster;
 
         }
+
+
+        // DEBUG DEBUG DEBUG
+        // Run this to reset storage to a single yellow slime
+        public void ResetToYellowSlime()
+        {
+            _monsters = new List<MonsterData>();
+            _monsters.Add(new MonsterData()
+            {
+                MonsterType = MonsterListEnum.SlimeYellow,
+                Health = 100,
+                AttackPower = 1,
+                Active = true
+            });
+
+            SaveMonstersToFile();
+        }
+
+        public void AddMonsterFromSummoning(MonsterSummoningData monsterSummoningData)
+        {
+            var monsterData = _monsterList.GetDefaultMonsterDataFromSummoningData(monsterSummoningData);
+            _monsters.Add(monsterData);
+            SaveMonstersToFile();
+            _storagePresenter.SetStorageMonsters(GetStorageData());
+        }
+
         public MonsterData GetActiveMonster()
         {
             return _monsters[_activeMonsterIndex];

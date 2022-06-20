@@ -79,9 +79,36 @@ public class MonsterList : MonoBehaviour
         return battleData;
     }
 
+    public MonsterSummoningData GetRandomMonsterSummoningDataUniform()
+    {
+        var randomMonster = GetRandomMonsterUniform();
+        var allData = GetMonsterData(randomMonster);
+        var summoningData = new MonsterSummoningData()
+        {
+            MonsterType = randomMonster,
+            SummoningPrefab = allData.BattleGameObject
+        };
+
+        return summoningData;
+    }
+
     private MonsterListEnum GetRandomMonsterUniform()
     {
         int randomNumber = UnityEngine.Random.Range(0, NUMBER_OF_MONSTERS);
         return (MonsterListEnum)randomNumber;
+    }
+
+    public MonsterData GetDefaultMonsterDataFromSummoningData(MonsterSummoningData summoningData)
+    {
+        var allData = GetMonsterData(summoningData.MonsterType);
+        var monsterData = new MonsterData()
+        {
+            MonsterType = summoningData.MonsterType,
+            Health = allData.Health,
+            AttackPower = allData.AttackPower,
+            Level = 1,
+            Active = false
+        };
+        return monsterData;
     }
 }
