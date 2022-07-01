@@ -27,6 +27,12 @@ namespace Battle
         [SerializeField] private Button _goBackDefeatButton;
         [SerializeField] private TMP_Text _lootText;
 
+        [Header("MenuButtons")]
+        [SerializeField] private Button _goBackButton;
+        [SerializeField] private Button _confirmCancelButton;
+        [SerializeField] private Button _dontCancelButton;
+        [SerializeField] private GameObject _cancelBattleScreen;
+
         private void Start()
         {
             _comboText.text = "";
@@ -37,6 +43,10 @@ namespace Battle
             _goBackVictoryButton.onClick.AddListener(GoBackAfterEndBattle);
             _goBackDefeatButton.onClick.AddListener(GoBackAfterEndBattle);
 
+            _goBackButton.onClick.AddListener(CancelBattle);
+            _confirmCancelButton.onClick.AddListener(DoCancelBattle);
+            _dontCancelButton.onClick.AddListener(DontCancelBattle);
+
             _victoryScreen.SetActive(false);
             _defeatScreen.SetActive(false);
             _endBattleModal.SetActive(false);
@@ -44,7 +54,9 @@ namespace Battle
 
         private void GoBackAfterEndBattle()
         {
-            SceneManager.LoadScene("HomeScene");
+            _comboText.text = "";
+            _endBattleModal.SetActive(true);
+            _defeatScreen.SetActive(true);
         }
 
         public void SetHealthBar(float percent, Players player)
@@ -94,6 +106,23 @@ namespace Battle
             _endBattleModal.SetActive(true);
             _defeatScreen.SetActive(true);
         }
+        private void CancelBattle()
+        {
+            _endBattleModal.SetActive(true);
+            _cancelBattleScreen.SetActive(true);
+        }
+
+        private void DoCancelBattle()
+        {
+            SceneManager.LoadScene("HomeScene");
+        }
+
+        private void DontCancelBattle()
+        {
+            _cancelBattleScreen.SetActive(false);
+            _endBattleModal.SetActive(false);
+        }
+
 
         public void ClearComboText()
         {
@@ -117,7 +146,7 @@ namespace Battle
             {
                 _comboText.text = "";
             }
-        }
+        }        
 
         public void DisplayActiveAttacer(Players player)
         {
