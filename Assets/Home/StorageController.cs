@@ -8,9 +8,12 @@ namespace Home
     {
         [SerializeField] private StoragePresenter _storagePresenter;
         [SerializeField] private MonsterList _monsterList;
+        [SerializeField] private HomeUIController _homeUIController;
 
         private List<MonsterData> _monsters;
         private int _activeMonsterIndex;
+
+        private int _deleteMonsterIndex;
 
         private void Start()
         {
@@ -33,9 +36,48 @@ namespace Home
 
             _storagePresenter.SetStorageMonsters(GetStorageData());
             _storagePresenter.OnNewActiveMonsterSet += SetNewActiveMonster;
+            _storagePresenter.OnDeleteMonsterRequested += AskForMonsterDeletionConfirmation;
+            _storagePresenter.OnConfirmDeletion += ConfirmMonsterDeletion;
+            _storagePresenter.OnCancelDeletion += CancelDeletion;
 
+            _homeUIController.OnBack += OnGoingBack;
         }
 
+        private void OnGoingBack()
+        {
+            _storagePresenter.HideDeletionModal();
+        }
+
+        private void AskForMonsterDeletionConfirmation(int index)
+        {
+            if (_monsters.Count <= 1)
+            {
+                return; // TODO Feedback to user about not being able to delete her last monster
+            }
+
+            _deleteMonsterIndex = index;
+            _storagePresenter.ShowDeletionModal();
+        }
+
+        private void ConfirmMonsterDeletion()
+        {
+            _monsters.RemoveAt(_deleteMonsterIndex);
+
+            if (_activeMonsterIndex == _deleteMonsterIndex)
+            {
+                _activeMonsterIndex = 0;
+                _monsters[0].Active = true;
+            }
+
+            SaveMonstersToFile();
+            _storagePresenter.SetStorageMonsters(GetStorageData());
+            _storagePresenter.HideDeletionModal();
+        }
+
+        private void CancelDeletion()
+        {
+            _storagePresenter.HideDeletionModal();
+        }
 
         // DEBUG DEBUG DEBUG
         // Run this to reset storage to a single yellow slime

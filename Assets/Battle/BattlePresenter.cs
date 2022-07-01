@@ -54,9 +54,7 @@ namespace Battle
 
         private void GoBackAfterEndBattle()
         {
-            _comboText.text = "";
-            _endBattleModal.SetActive(true);
-            _defeatScreen.SetActive(true);
+            SceneManager.LoadScene("HomeScene");
         }
 
         public void SetHealthBar(float percent, Players player)

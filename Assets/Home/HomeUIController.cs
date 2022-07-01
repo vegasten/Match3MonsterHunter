@@ -1,9 +1,12 @@
+using System;
 using UnityEngine;
 
 namespace Home
 {
     public class HomeUIController : MonoBehaviour
     {
+        public event Action OnBack;
+
         private enum Canvases
         {
             Main,
@@ -84,6 +87,8 @@ namespace Home
             {
                 ShowScreen(MainScreens.Main);
             }
+
+            OnBack?.Invoke();
         }
 
         private void SummonMonster()
