@@ -18,6 +18,10 @@ namespace Battle
         [Header("Board")]
         [SerializeField] private GameBoardManager _boardManager;
 
+        [Header("Cutscene")]
+        [SerializeField] private StartBattleCutscene _startBattleCutscene;
+        [SerializeField] private GameObject _battleUI;
+
         private MonsterBattleState _friendlyMonsterData;
         private MonsterBattleState _enemyMonsterData;
         private BattleMonster _friendlyBattleMonster;
@@ -33,6 +37,18 @@ namespace Battle
             _persistantState = GameObject.FindObjectOfType<PersistantState>();
 
             StartBattle();
+
+            _battleUI.SetActive(false);
+            IsBoardInputEnabled = false;
+
+            _startBattleCutscene.StartCutScene();
+            _startBattleCutscene.OnCutSceneComplete += OnStartCutsceneEnabled;
+        }
+
+        private void OnStartCutsceneEnabled()
+        {
+            IsBoardInputEnabled = true;
+            _battleUI.SetActive(true);
         }
 
         public void StartBattle()
