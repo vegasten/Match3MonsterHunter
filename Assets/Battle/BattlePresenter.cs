@@ -25,6 +25,7 @@ namespace Battle
         [SerializeField] private GameObject _defeatScreen;
         [SerializeField] private Button _goBackVictoryButton;
         [SerializeField] private Button _goBackDefeatButton;
+        [SerializeField] private TMP_Text _lootText;
 
         private void Start()
         {
@@ -71,11 +72,20 @@ namespace Battle
             }
         }
 
-        public void EndBattleWithVictory()
+        public void EndBattleWithVictory(string loot = "")
         {
             _comboText.text = "";
             _endBattleModal.SetActive(true);
             _victoryScreen.SetActive(true);
+
+            if (!string.IsNullOrEmpty(loot))
+            {
+                _lootText.text = $"Found loot: {loot}";
+            }
+            else
+            {
+                _lootText.text = "";
+            }
         }
 
         public void EndBattleWithDefeat()

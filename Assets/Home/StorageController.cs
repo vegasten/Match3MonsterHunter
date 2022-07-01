@@ -15,7 +15,7 @@ namespace Home
         private void Start()
         {
             // DEBUG
-            ResetToYellowSlime();
+            //ResetToYellowSlime();
             // DEBUG
 
             _monsters = StateSaver.Instance.LoadMonsters();

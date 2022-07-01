@@ -6,10 +6,16 @@ namespace Home
     public class HomeBattleController : MonoBehaviour
     {
         [SerializeField] private MonsterList _monsterList;
-        [SerializeField] private PersistantState _persistantState;
 
         [Header("Controllers")]
         public StorageController _storageController;
+
+        PersistantState _persistantState;
+
+        private void Start()
+        {
+            _persistantState = GameObject.FindObjectOfType<PersistantState>();
+        }
 
         public void StartBattle()
         {

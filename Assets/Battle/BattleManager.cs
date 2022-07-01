@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Battle
@@ -68,9 +69,7 @@ namespace Battle
 
                 if (_enemyMonsterData.Life <= 0)
                 {
-                    _presenter.EndBattleWithVictory();
-                    _batteHasEnded = true;
-                    _enemyBattleMonster.TriggerDeath();
+                    BattleWon();
                 }
             }
             else
@@ -83,9 +82,7 @@ namespace Battle
 
                 if (_friendlyMonsterData.Life <= 0)
                 {
-                    _presenter.EndBattleWithDefeat();
-                    _batteHasEnded = true;
-                    _friendlyBattleMonster.TriggerDeath();
+                    BattleLost();
                 }
             }
 
@@ -121,6 +118,69 @@ namespace Battle
         private int CalculateDamage(int numberOfCombos, int numberOfTiles)
         {
             return numberOfCombos * numberOfTiles;
+        }
+
+        private void BattleWon()
+        {
+            var loot = LootMaster.GetLootForVictory();
+            SaveLoot(loot);
+            var lootString = GetLootString(loot);
+
+            _presenter.EndBattleWithVictory(lootString);
+            _batteHasEnded = true;
+            _enemyBattleMonster.TriggerDeath();
+        }
+
+        private void SaveLoot(List<ILoot> loot)
+        {
+            var currentCurrency = StateSaver.Instance.LoadCurrency();
+            int numberOfNewScrolls = 0;
+
+            foreach (var item in loot)
+            {
+                if (item is BasicScroll)
+                {
+                    numberOfNewScrolls++;
+                }
+            }
+
+            currentCurrency.BasicScrolls += numberOfNewScrolls;
+            StateSaver.Instance.SaveCurrency(currentCurrency);
+        }
+
+        private string GetLootString(List<ILoot> loot)
+        {
+            int numberOfScrolls = 0;
+
+            foreach (var item in loot)
+            {
+                if (item is BasicScroll)
+                {
+                    numberOfScrolls++;
+                }
+            }
+
+            if (numberOfScrolls > 0)
+            {
+                if (numberOfScrolls == 1)
+                {
+                    return "1 scroll";
+                }
+                else
+                {
+                    return $"{numberOfScrolls} scrolls";
+
+                }
+            }
+
+            return "";
+        }
+
+        private void BattleLost()
+        {
+            _presenter.EndBattleWithDefeat();
+            _batteHasEnded = true;
+            _friendlyBattleMonster.TriggerDeath();
         }
 
         private IEnumerator AnimateFriendlyAttack()

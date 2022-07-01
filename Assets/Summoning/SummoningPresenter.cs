@@ -1,6 +1,7 @@
 using DG.Tweening;
 using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,10 +12,13 @@ namespace Home
         public event Action OnSummoningButtonClicked;
 
         [SerializeField] Transform _summoningSpot;
-        [SerializeField] Button _summoningButton;
-        [SerializeField] ParticleSystem _summoningParticleSystem;
         [SerializeField] GameObject _summoningScreen;
+        [SerializeField] ParticleSystem _summoningParticleSystem;
+
+        [Header("Summoning UI")]
+        [SerializeField] Button _summoningButton;
         [SerializeField] GameObject _goBackButton;
+        [SerializeField] TMP_Text _numberOfScrollsText;
 
         [Header("Spinning")]
         [SerializeField] private float _rotationSpeed = 75f;
@@ -58,6 +62,12 @@ namespace Home
             Destroy(monster);
             _summoningScreen.SetActive(true);
             _goBackButton.SetActive(true);
+        }
+
+        public void SetNumberOfScrolls(int numberOfScrolls)
+        {
+            _summoningButton.enabled = numberOfScrolls > 0;
+            _numberOfScrollsText.text = numberOfScrolls.ToString();
         }
     }
 }

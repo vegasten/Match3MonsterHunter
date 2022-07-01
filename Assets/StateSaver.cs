@@ -23,7 +23,7 @@ public class StateSaver
 
     public void SaveMonsters(List<MonsterData> monsters)
     {
-        string fileDestination = Application.persistentDataPath + "/save.dat";
+        string fileDestination = Application.persistentDataPath + "/monsters.dat";
         FileStream file;
 
         if (File.Exists(fileDestination))
@@ -49,7 +49,7 @@ public class StateSaver
 
     public List<MonsterData> LoadMonsters()
     {
-        string fileDestination = Application.persistentDataPath + "/save.dat";
+        string fileDestination = Application.persistentDataPath + "/monsters.dat";
         FileStream file;
 
         var monstersData = new List<MonsterData>();
@@ -74,6 +74,48 @@ public class StateSaver
         }
 
         return monstersData;
+    }
+
+    public void SaveCurrency(CurrencyData data)
+    {
+        string fileDestination = Application.persistentDataPath + "/currency.dat";
+        FileStream file;
+
+        if (File.Exists(fileDestination))
+        {
+            file = File.OpenWrite(fileDestination);
+        }
+        else
+        {
+            file = File.Create(fileDestination);
+        }
+
+        BinaryFormatter bf = new BinaryFormatter();
+        bf.Serialize(file, data);
+        file.Close();
+    }
+
+    public CurrencyData LoadCurrency()
+    {
+        string fileDestination = Application.persistentDataPath + "/currency.dat";
+        FileStream file;
+
+
+        if (File.Exists(fileDestination))
+        {
+            file = File.OpenRead(fileDestination);
+        }
+        else
+        {
+            Debug.LogWarning("Could not find currency save file");
+            return new CurrencyData();
+        }
+
+        BinaryFormatter bf = new BinaryFormatter();
+        var deserializedData = (CurrencyData)bf.Deserialize(file);
+        file.Close();
+
+        return deserializedData;
     }
 
     private MonsterDataSerializeable GetSerializableData(MonsterData data)
