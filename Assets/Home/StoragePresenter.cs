@@ -102,6 +102,6 @@ namespace Home
             {
                 OnNewActiveMonsterSet?.Invoke(index);
             }
-        }
+        }        
     }
 }

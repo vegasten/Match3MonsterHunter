@@ -10,6 +10,9 @@ namespace Home
         [SerializeField] private MonsterList _monsterList;
         [SerializeField] private HomeUIController _homeUIController;
 
+        [Header("Scene")]
+        [SerializeField] private Transform _sceneMonsterSpot;
+
         private List<MonsterData> _monsters;
         private int _activeMonsterIndex;
 
@@ -41,6 +44,8 @@ namespace Home
             _storagePresenter.OnCancelDeletion += CancelDeletion;
 
             _homeUIController.OnBack += OnGoingBack;
+
+            SetSceneMonster(_monsters[_activeMonsterIndex].MonsterType);
         }
 
         private void OnGoingBack()
@@ -126,6 +131,20 @@ namespace Home
             _activeMonsterIndex = index;
 
             SaveMonstersToFile();
+
+            SetSceneMonster(_monsters[index].MonsterType);
+        }
+
+        private void SetSceneMonster(MonsterListEnum monsterType)
+        {
+            var monsterPrefab = _monsterList.GetBattleGameObject(monsterType);
+
+            foreach(Transform child in _sceneMonsterSpot)
+            {
+                Destroy(child.gameObject);
+            }
+
+            Instantiate(monsterPrefab, _sceneMonsterSpot);
         }
 
         private List<MonsterStorageData> GetStorageData()
