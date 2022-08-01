@@ -11,14 +11,15 @@ namespace Home
     {
         public event Action OnSummoningButtonClicked;
 
-        [SerializeField] Transform _summoningSpot;
-        [SerializeField] GameObject _summoningScreen;
-        [SerializeField] ParticleSystem _summoningParticleSystem;
+        [SerializeField] private Transform _summoningSpot;
+        [SerializeField] private GameObject _summoningScreen;
+        [SerializeField] private SummoningParticles _summoningParticles;
+        [SerializeField] private Image _coveringImage;
 
         [Header("Summoning UI")]
-        [SerializeField] Button _summoningButton;
-        [SerializeField] GameObject _goBackButton;
-        [SerializeField] TMP_Text _numberOfScrollsText;
+        [SerializeField] private Button _summoningButton;
+        [SerializeField] private GameObject _goBackButton;
+        [SerializeField] private TMP_Text _numberOfScrollsText;
 
         [Header("Spinning")]
         [SerializeField] private float _rotationSpeed = 75f;
@@ -52,12 +53,23 @@ namespace Home
 
         private IEnumerator AnimateSummoningCoroutine(GameObject monsterPrefab)
         {
-            _summoningParticleSystem.Play();
-            yield return new WaitForSeconds(3.0f);
-            _summoningParticleSystem.Stop();
+            _summoningParticles.StartInProgressParticles();
+            yield return new WaitForSeconds(4.0f);
+
+            _coveringImage.DOFade(1f, 1f);
+
+            yield return new WaitForSeconds(1.0f);
+
+            _summoningParticles.StopInPrograssParticles();
+            _coveringImage.DOFade(0f, 0.5f);
             var monster = Instantiate(monsterPrefab, _summoningSpot);
             _monsterToRotate = monster.transform;
+
+            _summoningParticles.StartDoneEffects();
+            yield return new WaitForSeconds(3f);
+            _summoningParticles.StopDoneEffects();
             yield return new WaitForSeconds(3.0f);
+            
             _monsterToRotate = null;
             Destroy(monster);
             _summoningScreen.SetActive(true);
