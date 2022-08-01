@@ -63,6 +63,11 @@ namespace Home
 
             for (int i = 0; i < monsters.Count; i++)
             {
+                // TODO:
+                if (i >= _numberOfStorageSlots)
+                    continue;
+
+
                 var slot = _storageSlots[i];
                 var monster = monsters[i];
 
