@@ -66,8 +66,8 @@ namespace Battle
             _friendlyBattleMonster = Instantiate(friendlyMonsterPrefab, _friendlyBattleSpot).GetComponent<BattleMonster>();
             _enemyBattleMonster = Instantiate(enemyMonsterPrefab, _enemyBattleSpot).GetComponent<BattleMonster>();
 
-            _presenter.SetHealthBar(1, Players.Friendly);
-            _presenter.SetHealthBar(1, Players.Enemy);
+            _presenter.SetHealthBar(1, Players.Friendly); // 1 as in percent
+            _presenter.SetHealthBar(1, Players.Enemy); // 1 as in percent
 
             _presenter.DisplayActiveAttacer(_attacker);
             _boardManager.StartTurn(_attacker);
@@ -75,38 +75,51 @@ namespace Battle
 
         public void RegisterComboResult(int numberOfCombos, int numberOfTiles)
         {
+            float secondsToWaitBeforeNextRound = 2.0f;
             int damage = CalculateDamage(numberOfCombos, numberOfTiles);
 
             if (_attacker == Players.Friendly)
             {
                 _enemyMonsterData.TakeDamage(damage);
                 if (numberOfCombos <= 2)
+                {
                     StartCoroutine(AnimateFriendlyAttack());
+                    secondsToWaitBeforeNextRound = 2.0f;
+                }
                 else
+                {
                     StartCoroutine(AnimateFriendlyBigAttack());
+                    secondsToWaitBeforeNextRound = 4.0f;
+                }
 
                 if (_enemyMonsterData.Life <= 0)
                 {
-                    BattleWon();
+                    EndBattle(true, secondsToWaitBeforeNextRound);
                 }
             }
             else
             {
                 _friendlyMonsterData.TakeDamage(damage);
                 if (numberOfCombos <= 2)
+                {
                     StartCoroutine(AnimateEnemyAttack());
+                    secondsToWaitBeforeNextRound = 2.0f;
+                }
                 else
+                {
                     StartCoroutine(AnimateEnemyBigAttack());
+                    secondsToWaitBeforeNextRound = 4.0f;
+                }
 
                 if (_friendlyMonsterData.Life <= 0)
                 {
-                    BattleLost();
+                    EndBattle(false, secondsToWaitBeforeNextRound);
                 }
             }
 
             if (!_batteHasEnded)
             {
-                StartCoroutine(StartNextTurnAfterDelay(2.0f));
+                StartCoroutine(StartNextTurnAfterDelay(secondsToWaitBeforeNextRound));
             }
         }
 
@@ -138,6 +151,30 @@ namespace Battle
             return numberOfCombos * numberOfTiles;
         }
 
+        private void EndBattle(bool isVictory, float attackDelay)
+        {
+            _batteHasEnded = true;
+            StartCoroutine(EndBattleDelay(isVictory, attackDelay));
+        }
+
+        private IEnumerator EndBattleDelay(bool isVictory, float attackDelay)
+        {
+
+            if (isVictory)
+            {
+                _enemyBattleMonster.TriggerDeath();
+                yield return new WaitForSeconds(2.0f + attackDelay);
+                BattleWon();
+
+            }
+            else
+            {
+                _friendlyBattleMonster.TriggerDeath();
+                yield return new WaitForSeconds(2.0f + attackDelay);
+                BattleLost();
+            }
+        }
+
         private void BattleWon()
         {
             var loot = LootMaster.GetLootForVictory();
@@ -145,8 +182,6 @@ namespace Battle
             var lootString = GetLootString(loot);
 
             _presenter.EndBattleWithVictory(lootString);
-            _batteHasEnded = true;
-            _enemyBattleMonster.TriggerDeath();
         }
 
         private void SaveLoot(List<ILoot> loot)
@@ -197,8 +232,6 @@ namespace Battle
         private void BattleLost()
         {
             _presenter.EndBattleWithDefeat();
-            _batteHasEnded = true;
-            _friendlyBattleMonster.TriggerDeath();
         }
 
         private IEnumerator AnimateFriendlyAttack()
