@@ -79,7 +79,7 @@ namespace Home
         public void SetNumberOfScrolls(int numberOfScrolls)
         {
             _summoningButton.enabled = numberOfScrolls > 0;
-            _numberOfScrollsText.text = numberOfScrolls.ToString();
+            _numberOfScrollsText.text = numberOfScrolls.ToString() + " x Scrolls";
         }
     }
 }

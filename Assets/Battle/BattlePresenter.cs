@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using TMPro;
 using UnityEngine;
@@ -90,7 +91,7 @@ namespace Battle
 
             if (!string.IsNullOrEmpty(loot))
             {
-                _lootText.text = $"Found loot: {loot}";
+                _lootText.text = $"Found loot:";
             }
             else
             {
@@ -131,20 +132,18 @@ namespace Battle
         {
             if (numberOfCombos > 0)
             {
-                if (numberOfCombos == 1)
-                {
-                    _comboText.text = "1 Combo";
-                }
-                else
-                {
-                    _comboText.text = $"{numberOfCombos} Combos";
-                }
+                _comboText.transform.localScale = Vector3.zero;
+
+                var targetScale = 1 + numberOfCombos / 10.0f;
+                _comboText.transform.DOScale(targetScale, 0.5f).SetEase(Ease.OutBounce);                
+
+                _comboText.text = $"{numberOfCombos} Combos";
             }
             else
             {
                 _comboText.text = "";
             }
-        }        
+        }
 
         public void DisplayActiveAttacer(Players player)
         {

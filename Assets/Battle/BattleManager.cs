@@ -55,7 +55,8 @@ namespace Battle
         {
             _attacker = Players.Friendly;
 
-            _persistantState.EnemyMonster.Health = 1;
+            // DEBUG
+            //_persistantState.EnemyMonster.Health = 1; 
 
             _friendlyMonsterData = new MonsterBattleState(_persistantState.PlayerMonster);
             _enemyMonsterData = new MonsterBattleState(_persistantState.EnemyMonster);
