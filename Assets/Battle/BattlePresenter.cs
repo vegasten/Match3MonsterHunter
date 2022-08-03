@@ -137,7 +137,7 @@ namespace Battle
                 var targetScale = 1 + numberOfCombos / 10.0f;
                 _comboText.transform.DOScale(targetScale, 0.5f).SetEase(Ease.OutBounce);                
 
-                _comboText.text = $"{numberOfCombos} Combos";
+                _comboText.text = $"{numberOfCombos} Combo";
             }
             else
             {
