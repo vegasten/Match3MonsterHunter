@@ -56,7 +56,7 @@ namespace Battle
             _attacker = Players.Friendly;
 
             // DEBUG
-            //_persistantState.EnemyMonster.Health = 1; 
+            _persistantState.EnemyMonster.Health = 1;
 
             _friendlyMonsterData = new MonsterBattleState(_persistantState.PlayerMonster);
             _enemyMonsterData = new MonsterBattleState(_persistantState.EnemyMonster);
@@ -163,15 +163,17 @@ namespace Battle
 
             if (isVictory)
             {
+                yield return new WaitForSeconds(attackDelay);
                 _enemyBattleMonster.TriggerDeath();
-                yield return new WaitForSeconds(2.0f + attackDelay);
+                yield return new WaitForSeconds(2.0f);
                 BattleWon();
 
             }
             else
             {
+                yield return new WaitForSeconds(attackDelay);
                 _friendlyBattleMonster.TriggerDeath();
-                yield return new WaitForSeconds(2.0f + attackDelay);
+                yield return new WaitForSeconds(2.0f);
                 BattleLost();
             }
         }
