@@ -72,6 +72,8 @@ namespace Home
             {
                 _activeMonsterIndex = 0;
                 _monsters[0].Active = true;
+
+                SetSceneMonster(_monsters[0].MonsterType);
             }
 
             SaveMonstersToFile();
